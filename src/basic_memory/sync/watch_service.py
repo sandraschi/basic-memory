@@ -16,6 +16,22 @@ from rich.console import Console
 from watchfiles import awatch
 from watchfiles.main import FileChange, Change
 
+# Common directories to ignore during file watching and sync
+IGNORE_PATTERNS = {
+    # Node.js
+    "node_modules",
+    # Build outputs
+    "dist", "build", "target", "out", ".next", ".nuxt",
+    # Python
+    "__pycache__", ".pytest_cache", ".tox", "venv", ".venv",
+    # Other package managers / build tools
+    "vendor", ".gradle", ".cargo", "coverage",
+    # IDE and editor files
+    ".vscode", ".idea",
+    # OS files
+    ".DS_Store", "Thumbs.db"
+}
+
 
 class WatchEvent(BaseModel):
     timestamp: datetime
@@ -143,7 +159,7 @@ class WatchService:
             await self.write_status()
 
     def filter_changes(self, change: Change, path: str) -> bool:  # pragma: no cover
-        """Filter to only watch non-hidden files and directories.
+        """Filter to only watch non-hidden files and directories, excluding common build/cache dirs.
 
         Returns:
             True if the file should be watched, False if it should be ignored
@@ -153,6 +169,10 @@ class WatchService:
         path_parts = Path(path).parts
         for part in path_parts:
             if part.startswith("."):
+                return False
+            
+            # Skip common ignore patterns (node_modules, build dirs, etc.)
+            if part in IGNORE_PATTERNS:
                 return False
 
         # Skip temp files used in atomic operations

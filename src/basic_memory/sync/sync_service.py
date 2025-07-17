@@ -19,6 +19,22 @@ from basic_memory.services import EntityService, FileService
 from basic_memory.services.search_service import SearchService
 from basic_memory.services.sync_status_service import sync_status_tracker, SyncStatus
 
+# Common directories to ignore during file scanning and sync
+IGNORE_PATTERNS = {
+    # Node.js
+    "node_modules",
+    # Build outputs
+    "dist", "build", "target", "out", ".next", ".nuxt",
+    # Python
+    "__pycache__", ".pytest_cache", ".tox", "venv", ".venv",
+    # Other package managers / build tools
+    "vendor", ".gradle", ".cargo", "coverage",
+    # IDE and editor files
+    ".vscode", ".idea",
+    # OS files
+    ".DS_Store", "Thumbs.db"
+}
+
 
 @dataclass
 class SyncReport:
@@ -561,12 +577,12 @@ class SyncService:
         result = ScanResult()
 
         for root, dirnames, filenames in os.walk(str(directory)):
-            # Skip dot directories in-place
-            dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+            # Skip dot directories and common ignore patterns in-place
+            dirnames[:] = [d for d in dirnames if not d.startswith(".") and d not in IGNORE_PATTERNS]
 
             for filename in filenames:
-                # Skip dot files
-                if filename.startswith("."):
+                # Skip dot files and files in ignore patterns
+                if filename.startswith(".") or filename in IGNORE_PATTERNS:
                     continue
 
                 path = Path(root) / filename
