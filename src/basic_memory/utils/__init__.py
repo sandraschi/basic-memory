@@ -19,6 +19,9 @@ from basic_memory.permalink_utils import generate_permalink
 # Import parse_tags from tag_utils
 from basic_memory.tag_utils import parse_tags
 
+# Import from path_utils
+from basic_memory.utils.path_utils import validate_project_path
+
 __all__ = [
     'FileSafety',
     'FileSafetyError',
@@ -28,4 +31,5 @@ __all__ = [
     'setup_logging',
     'generate_permalink',
     'parse_tags',
+    'validate_project_path',
 ]

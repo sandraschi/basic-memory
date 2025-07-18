@@ -128,3 +128,154 @@
 2025-07-18 01:04:51 | INFO     | Basic Memory 0.14.2 (Project: claude-depot-consolidated)
 2025-07-18 01:05:17 | INFO     | Basic Memory 0.14.2 (Project: claude-depot-consolidated)
 2025-07-18 01:05:25 | INFO     | Basic Memory 0.14.2 (Project: claude-depot-consolidated)
+2025-07-18 01:30:54 | INFO     | Basic Memory 0.14.2 (Project: claude-depot-consolidated)
+2025-07-18 01:33:12 | INFO     | Basic Memory 0.14.2 (Project: claude-depot-consolidated)
+2025-07-18 02:18:06 | INFO     | Basic Memory 0.14.2 (Project: claude-depot-consolidated)
+2025-07-18 02:20:38 | INFO     | Basic Memory 0.14.2 (Project: claude-depot-consolidated)
+2025-07-18 02:20:40 | INFO     | Initializing app...
+2025-07-18 02:20:40 | INFO     | Running database migrations...
+2025-07-18 02:20:40 | INFO     | Migrations completed successfully
+2025-07-18 02:20:40 | INFO     | Initializing search index
+2025-07-18 02:20:40 | INFO     | Database initialization completed
+2025-07-18 02:20:40 | INFO     | Reconciling projects from config with database...
+2025-07-18 02:20:40 | INFO     | Synchronizing projects between database and configuration
+2025-07-18 02:20:40 | INFO     | Project synchronization complete
+2025-07-18 02:20:40 | INFO     | Initialized project session with default project: claude-depot-consolidated
+2025-07-18 02:20:40 | INFO     | Refreshed project session from config, new default: claude-depot-consolidated
+2025-07-18 02:20:40 | INFO     | Projects successfully reconciled between config and database
+2025-07-18 02:20:40 | INFO     | App initialization completed (migration running in background if needed)
+2025-07-18 02:20:40 | INFO     | Initialization completed successfully: result=None
+2025-07-18 02:20:40 | INFO     | Switched project context: claude-depot-consolidated -> claude-depot-consolidated
+2025-07-18 02:20:40 | INFO     | Sync changes enabled: True
+2025-07-18 02:20:40 | INFO     | Started file sync in background
+2025-07-18 02:20:40 | INFO     | Starting MCP server with STDIO transport
+2025-07-18 02:20:40 | INFO     | Starting sync for project: main
+2025-07-18 02:20:40 | INFO     | Sync operation started for directory: C:\Users\sandr\basic-memory
+2025-07-18 02:20:40 | INFO     | Initializing app...
+2025-07-18 02:20:40 | INFO     | Database initialization completed
+2025-07-18 02:20:40 | INFO     | Reconciling projects from config with database...
+2025-07-18 02:20:40 | INFO     | Synchronizing projects between database and configuration
+2025-07-18 02:20:40 | INFO     | Found 5 db records
+2025-07-18 02:20:40 | INFO     | Scanning directory C:\Users\sandr\basic-memory. Found 5 db paths
+2025-07-18 02:20:40 | INFO     | Project synchronization complete
+2025-07-18 02:20:40 | INFO     | Initialized project session with default project: claude-depot-consolidated
+2025-07-18 02:20:40 | INFO     | Refreshed project session from config, new default: claude-depot-consolidated
+2025-07-18 02:20:40 | INFO     | Projects successfully reconciled between config and database
+2025-07-18 02:20:40 | INFO     | App initialization completed (migration running in background if needed)
+2025-07-18 02:20:40 | INFO     | Initialized project session with default project: claude-depot-consolidated
+2025-07-18 02:20:40 | INFO     | Completed scan for directory C:\Users\sandr\basic-memory, found 0 changes.
+2025-07-18 02:20:40 | INFO     | Sync changes detected: new_files=0, modified_files=0, deleted_files=0, moved_files=0
+2025-07-18 02:20:40 | INFO     | Resolving forward references
+2025-07-18 02:20:40 | INFO     | Sync operation completed: directory=C:\Users\sandr\basic-memory, total_changes=0, duration_ms=143
+2025-07-18 02:20:40 | INFO     | Sync completed successfully for project: main
+2025-07-18 02:20:40 | INFO     | Project main is now watching for changes
+2025-07-18 02:20:40 | INFO     | Starting sync for project: plexmcp
+2025-07-18 02:20:40 | INFO     | Sync operation started for directory: C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.11.6\PlexMCP
+2025-07-18 02:20:40 | INFO     | Found 0 db records
+2025-07-18 02:20:40 | INFO     | Scanning directory C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.11.6\PlexMCP. Found 0 db paths
+2025-07-18 02:20:40 | INFO     | Completed scan for directory C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.11.6\PlexMCP, found 0 changes.
+2025-07-18 02:20:40 | INFO     | Sync changes detected: new_files=0, modified_files=0, deleted_files=0, moved_files=0
+2025-07-18 02:20:40 | INFO     | Resolving forward references
+2025-07-18 02:20:41 | INFO     | Sync operation completed: directory=C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.11.6\PlexMCP, total_changes=0, duration_ms=54
+2025-07-18 02:20:41 | INFO     | Sync completed successfully for project: plexmcp
+2025-07-18 02:20:41 | INFO     | Project plexmcp is now watching for changes
+2025-07-18 02:20:41 | INFO     | Starting sync for project: myai
+2025-07-18 02:20:41 | INFO     | Sync operation started for directory: d:\dev\repos\myai
+2025-07-18 02:20:44 | INFO     | Found 65801 db records
+2025-07-18 02:20:44 | INFO     | Scanning directory d:\dev\repos\myai. Found 65801 db paths
+2025-07-18 02:20:45 | INFO     | Completed scan for directory d:\dev\repos\myai, found 63552 changes.
+2025-07-18 02:20:45 | INFO     | Sync changes detected: new_files=4, modified_files=0, deleted_files=62497, moved_files=1051
+2025-07-18 02:20:45 | ERROR    | Error syncing project myai: (sqlite3.IntegrityError) UNIQUE constraint failed: entity.file_path, entity.project_id
+[SQL: UPDATE entity SET file_path=? WHERE entity.id = ?]
+[parameters: ('temp_vertex_ai\\prompts\\__init__.py', 88)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-07-18 02:20:45 | INFO     | Starting sync for project: claude-depot-consolidated
+2025-07-18 02:20:45 | INFO     | Sync operation started for directory: C:\Users\sandr\Documents\claude-depot
+2025-07-18 02:20:45 | INFO     | Found 623 db records
+2025-07-18 02:20:45 | INFO     | Scanning directory C:\Users\sandr\Documents\claude-depot. Found 623 db paths
+2025-07-18 02:20:45 | INFO     | Completed scan for directory C:\Users\sandr\Documents\claude-depot, found 2 changes.
+2025-07-18 02:20:45 | INFO     | Sync changes detected: new_files=2, modified_files=0, deleted_files=0, moved_files=0
+2025-07-18 02:20:45 | ERROR    | Failed to sync file: path=imported\docs\Windsurf generated flows\research\2025-04-28_automated-research-papers\chunk_04.md, error=while scanning an alias
+  in "<unicode string>", line 4, column 3
+did not find expected alphabetic or numeric character
+  in "<unicode string>", line 4, column 4
+2025-07-18 02:20:45 | ERROR    | Failed to sync file: path=imported\docs\Windsurf generated flows\research\2025-04-28_automated-research-papers\chunk_03.md, error=mapping values are not allowed in this context
+  in "<unicode string>", line 17, column 16
+2025-07-18 02:20:45 | INFO     | Resolving forward references
+2025-07-18 02:20:45 | INFO     | Sync operation completed: directory=C:\Users\sandr\Documents\claude-depot, total_changes=2, duration_ms=333
+2025-07-18 02:20:45 | INFO     | Sync completed successfully for project: claude-depot-consolidated
+2025-07-18 02:20:45 | INFO     | Project claude-depot-consolidated is now watching for changes
+2025-07-18 02:20:45 | INFO     | Starting sync for project: veogen
+2025-07-18 02:20:45 | INFO     | Sync operation started for directory: D:\dev\repos\veogen
+2025-07-18 02:20:45 | INFO     | Found 1304 db records
+2025-07-18 02:20:45 | INFO     | Scanning directory D:\dev\repos\veogen. Found 1304 db paths
+2025-07-18 02:20:46 | INFO     | Completed scan for directory D:\dev\repos\veogen, found 187 changes.
+2025-07-18 02:20:46 | INFO     | Sync changes detected: new_files=4, modified_files=0, deleted_files=89, moved_files=94
+2025-07-18 02:20:46 | ERROR    | Error syncing project veogen: (sqlite3.IntegrityError) UNIQUE constraint failed: entity.file_path, entity.project_id
+[SQL: UPDATE entity SET file_path=? WHERE entity.id = ?]
+[parameters: ('frontend\\src\\components\\BasicVoiceControl.css', 66466)]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2025-07-18 02:20:46 | INFO     | Starting sync for project: general-ai
+2025-07-18 02:20:46 | INFO     | Sync operation started for directory: C:\Users\sandr\Documents\general-ai
+2025-07-18 02:20:46 | INFO     | Found 12 db records
+2025-07-18 02:20:46 | INFO     | Scanning directory C:\Users\sandr\Documents\general-ai. Found 12 db paths
+2025-07-18 02:20:46 | INFO     | Completed scan for directory C:\Users\sandr\Documents\general-ai, found 0 changes.
+2025-07-18 02:20:46 | INFO     | Sync changes detected: new_files=0, modified_files=0, deleted_files=0, moved_files=0
+2025-07-18 02:20:46 | INFO     | Resolving forward references
+2025-07-18 02:20:46 | INFO     | Sync operation completed: directory=C:\Users\sandr\Documents\general-ai, total_changes=0, duration_ms=64
+2025-07-18 02:20:46 | INFO     | Sync completed successfully for project: general-ai
+2025-07-18 02:20:46 | INFO     | Project general-ai is now watching for changes
+2025-07-18 02:20:46 | INFO     | Starting sync for project: mcp-investigation
+2025-07-18 02:20:46 | INFO     | Sync operation started for directory: C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.12.16\mcp-investigation
+2025-07-18 02:20:46 | INFO     | Found 0 db records
+2025-07-18 02:20:46 | INFO     | Scanning directory C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.12.16\mcp-investigation. Found 0 db paths
+2025-07-18 02:20:46 | INFO     | Completed scan for directory C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.12.16\mcp-investigation, found 0 changes.
+2025-07-18 02:20:46 | INFO     | Sync changes detected: new_files=0, modified_files=0, deleted_files=0, moved_files=0
+2025-07-18 02:20:46 | INFO     | Resolving forward references
+2025-07-18 02:20:46 | INFO     | Sync operation completed: directory=C:\Users\sandr\AppData\Local\AnthropicClaude\app-0.12.16\mcp-investigation, total_changes=0, duration_ms=48
+2025-07-18 02:20:46 | INFO     | Sync completed successfully for project: mcp-investigation
+2025-07-18 02:20:46 | INFO     | Project mcp-investigation is now watching for changes
+2025-07-18 02:20:46 | INFO     | Starting sync for project: fastsearch-mcp-development
+2025-07-18 02:20:46 | INFO     | Sync operation started for directory: D:\Dev\repos\fastsearch-mcp\docs
+2025-07-18 02:20:46 | INFO     | Found 4 db records
+2025-07-18 02:20:46 | INFO     | Scanning directory D:\Dev\repos\fastsearch-mcp\docs. Found 4 db paths
+2025-07-18 02:20:46 | INFO     | Completed scan for directory D:\Dev\repos\fastsearch-mcp\docs, found 0 changes.
+2025-07-18 02:20:46 | INFO     | Sync changes detected: new_files=0, modified_files=0, deleted_files=0, moved_files=0
+2025-07-18 02:20:46 | INFO     | Resolving forward references
+2025-07-18 02:20:46 | INFO     | Sync operation completed: directory=D:\Dev\repos\fastsearch-mcp\docs, total_changes=0, duration_ms=58
+2025-07-18 02:20:46 | INFO     | Sync completed successfully for project: fastsearch-mcp-development
+2025-07-18 02:20:46 | INFO     | Project fastsearch-mcp-development is now watching for changes
+2025-07-18 02:20:46 | INFO     | Starting watch service for all projects
+2025-07-18 02:20:46 | INFO     | Watch service started
+2025-07-18 02:57:36 | INFO     | Processing project: claude-depot-consolidated changes, change_count=2, directory=C:\Users\sandr\Documents\claude-depot
+2025-07-18 02:57:36 | INFO     | modified: troubleshooting\Database Integrity Fix Script.md
+2025-07-18 02:57:36 | INFO     | changes: 1
+2025-07-18 02:57:36 | INFO     | File change processing completed, processed_files=2, total_synced_files=2, duration_ms=355
+2025-07-18 03:31:55 | INFO     | Processing project: claude-depot-consolidated changes, change_count=2, directory=C:\Users\sandr\Documents\claude-depot
+2025-07-18 03:31:56 | INFO     | Entity already exists for file_path=demo\Basic Memory Project Ecosystem.canvas, updating instead of creating
+2025-07-18 03:31:56 | INFO     | new file processed
+2025-07-18 03:31:56 | INFO     | changes: 2
+2025-07-18 03:31:56 | INFO     | File change processing completed, processed_files=2, total_synced_files=4, duration_ms=432
+2025-07-18 03:50:14 | INFO     | Processing project: claude-depot-consolidated changes, change_count=3, directory=C:\Users\sandr\Documents\claude-depot
+2025-07-18 03:50:14 | INFO     | Deleting entity with file_path=docs\MASTER_DEVELOPMENT_RULES.md, entity_id=66033, permalink=docs-master-development-rules
+2025-07-18 03:50:14 | INFO     | deleted: docs\MASTER_DEVELOPMENT_RULES.md
+2025-07-18 03:50:14 | INFO     | changes: 1
+2025-07-18 03:50:14 | INFO     | File change processing completed, processed_files=2, total_synced_files=6, duration_ms=194
+2025-07-18 03:50:44 | INFO     | Processing project: claude-depot-consolidated changes, change_count=3, directory=C:\Users\sandr\Documents\claude-depot
+2025-07-18 03:50:44 | INFO     | Deleting entity with file_path=rules\MASTER_DEVELOPMENT_RULES.md, entity_id=66449, permalink=rules-master-development-rules
+2025-07-18 03:50:44 | INFO     | deleted: rules\MASTER_DEVELOPMENT_RULES.md
+2025-07-18 03:50:44 | INFO     | changes: 1
+2025-07-18 03:50:44 | INFO     | File change processing completed, processed_files=2, total_synced_files=8, duration_ms=366
+2025-07-18 03:51:57 | INFO     | Processing project: claude-depot-consolidated changes, change_count=2, directory=C:\Users\sandr\Documents\claude-depot
+2025-07-18 03:51:57 | INFO     | modified: rules\IMPROVED_DEVELOPMENT_RULES.md
+2025-07-18 03:51:57 | INFO     | changes: 1
+2025-07-18 03:51:57 | INFO     | File change processing completed, processed_files=2, total_synced_files=10, duration_ms=934
+2025-07-18 03:52:11 | INFO     | Processing project: claude-depot-consolidated changes, change_count=3, directory=C:\Users\sandr\Documents\claude-depot
+2025-07-18 03:52:11 | INFO     | deleted: docs\rules\PowerShell_Rules.md
+2025-07-18 03:52:11 | INFO     | changes: 1
+2025-07-18 03:52:11 | INFO     | File change processing completed, processed_files=2, total_synced_files=12, duration_ms=31
+2025-07-18 03:52:21 | INFO     | Processing project: claude-depot-consolidated changes, change_count=3, directory=C:\Users\sandr\Documents\claude-depot
+2025-07-18 03:52:21 | INFO     | Deleting entity with file_path=reference\COMPREHENSIVE CLAUDE STARTUP PROTOCOL - MANDATORY EXECUTION.md, entity_id=66452, permalink=reference-comprehensive-claude-startup-protocol-mandatory-execution
+2025-07-18 03:52:21 | INFO     | deleted: reference\COMPREHENSIVE CLAUDE STARTUP PROTOCOL - MANDATORY EXECUTION.md
+2025-07-18 03:52:21 | INFO     | changes: 1
+2025-07-18 03:52:21 | INFO     | File change processing completed, processed_files=2, total_synced_files=14, duration_ms=461
