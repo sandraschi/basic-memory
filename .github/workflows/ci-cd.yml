@@ -56,17 +56,20 @@ jobs:
       run: |
         python -m build --sdist --wheel --outdir dist/
     
-    - name: Publish to PyPI
+    - name: Publish to GitHub Packages
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        repository_url: https://pypi.pkg.github.com/${{ github.repository }}
+        skip_existing: true
     
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          dist/*.whl
-          dist/*.tar.gz
+          artifacts/basic-memory-ubuntu-latest/dist/*
+          artifacts/basic-memory-windows-latest/dist/*
+          artifacts/basic-macOS-latest/dist/*
+          dist/*
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

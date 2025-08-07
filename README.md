@@ -102,6 +102,7 @@ and write to. The key advantages:
 - **Structured yet simple:** Uses familiar Markdown with semantic patterns
 - **Traversable knowledge graph:** LLMs can follow links between topics
 - **Standard formats:** Works with existing editors like Obsidian
+- **Smart file filtering:** Automatically ignores common development directories (node_modules, __pycache__, etc.)
 - **Lightweight infrastructure:** Just local files indexed in a local SQLite database
 
 With Basic Memory, you can:
@@ -113,6 +114,48 @@ With Basic Memory, you can:
 - Keep everything local and under your control
 - Use familiar tools like Obsidian to view and edit notes
 - Build a personal knowledge base that grows over time
+
+## File Filtering
+
+Basic Memory automatically ignores common development directories and files to improve performance and reduce noise. This is particularly important for:
+- Node.js projects with large `node_modules` directories
+- Projects with frequent build artifacts
+- Development environments with log files that change often
+
+### Ignored Patterns
+
+#### Development Dependencies
+- **Node.js**: `node_modules`
+- **Python**: `__pycache__`, `.pytest_cache`, `.tox`, `venv`, `.venv`
+
+#### Build Outputs
+- `dist`, `build`, `target`, `out`, `.next`, `.nuxt`
+- `*.o`, `*.obj`, `*.exe`, `*.dll`, `*.so`, `*.dylib`
+
+#### Package Managers
+- `vendor`, `packages`, `bower_components`
+- `.gradle`, `.cargo`, `coverage`
+
+#### Logs and Temporary Files
+- `*.log`, `logs/`, `*.log.*`, `*.tmp`, `*.temp`
+- `npm-debug.log*`, `yarn-debug.log*`, `yarn-error.log*`
+
+#### IDE and Editor Files
+- `.vscode/`, `.idea/`, `*.sublime-*`
+- `.project`, `.classpath`, `.settings/`
+
+#### System Files
+- `.DS_Store`, `Thumbs.db`
+- `desktop.ini`, `$RECYCLE.BIN/`
+
+### Performance Impact
+Filtering these files provides significant benefits:
+- **Faster sync times** (especially initial sync)
+- **Lower memory usage** (avoids processing large dependency trees)
+- **Reduced disk I/O** (fewer files to watch and process)
+- **Cleaner knowledge base** (focuses on source content, not build artifacts)
+
+To customize these patterns, modify the `IGNORE_PATTERNS` set in the source code.
 
 ## How It Works in Practice
 

@@ -28,14 +28,14 @@ def _get_all_projects_status() -> list[str]:
                     # Project has tracked sync activity
                     if project_sync_status.status.value == "watching":
                         # Project is actively watching for changes (steady state)
-                        status_icon = "👁️"
+                        status_icon = "[WATCH]"
                         status_text = "Watching for changes"
                     elif project_sync_status.status.value == "completed":
                         # Sync completed but not yet watching - transitional state
-                        status_icon = "✅"
+                        status_icon = "[OK]"
                         status_text = "Sync completed"
                     elif project_sync_status.status.value in ["scanning", "syncing"]:
-                        status_icon = "🔄"
+                        status_icon = "[SYNC]"
                         status_text = "Sync in progress"
                         if project_sync_status.files_total > 0:
                             progress_pct = (
@@ -44,14 +44,14 @@ def _get_all_projects_status() -> list[str]:
                             ) * 100
                             status_text += f" ({project_sync_status.files_processed}/{project_sync_status.files_total}, {progress_pct:.0f}%)"
                     elif project_sync_status.status.value == "failed":
-                        status_icon = "❌"
+                        status_icon = "[ERROR]"
                         status_text = f"Sync error: {project_sync_status.error or 'Unknown error'}"
                     else:
-                        status_icon = "⏸️"
+                        status_icon = "[PAUSED]"
                         status_text = project_sync_status.status.value.title()
                 else:
                     # Project has no tracked sync activity - will be synced automatically
-                    status_icon = "⏳"
+                    status_icon = "[PENDING]"
                     status_text = "Pending sync"
 
                 status_lines.append(f"- {status_icon} **{project_name}**: {status_text}")
@@ -108,7 +108,7 @@ async def sync_status(project: Optional[str] = None) -> str:
                 "# Basic Memory Sync Status",
                 "",
                 f"**Current Status**: {summary}",
-                f"**System Ready**: {'✅ Yes' if is_ready else '🔄 Processing'}",
+                f"**System Ready**: {'[OK] Yes' if is_ready else '[WORKING] Processing'}",
                 "",
             ]
         )
@@ -116,7 +116,7 @@ async def sync_status(project: Optional[str] = None) -> str:
         if is_ready:
             status_lines.extend(
                 [
-                    "✅ **All sync operations completed**",
+                    "[OK] **All sync operations completed**",
                     "",
                     "- File indexing is complete",
                     "- Knowledge graphs are up to date",
@@ -140,7 +140,7 @@ async def sync_status(project: Optional[str] = None) -> str:
             if active_projects:
                 status_lines.extend(
                     [
-                        "🔄 **File synchronization in progress**",
+                        "[WORKING] **File synchronization in progress**",
                         "",
                         "Basic Memory is automatically processing all configured projects and building knowledge graphs.",
                         "This typically takes 1-3 minutes depending on the amount of content.",
@@ -180,7 +180,7 @@ async def sync_status(project: Optional[str] = None) -> str:
 
             # Handle failed projects (independent of active projects)
             if failed_projects:
-                status_lines.extend(["", "❌ **Some projects failed to sync:**", ""])
+                status_lines.extend(["", "[ERROR] **Some projects failed to sync:**", ""])
 
                 for project_status in failed_projects:
                     status_lines.append(

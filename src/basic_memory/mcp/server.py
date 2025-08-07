@@ -1,8 +1,10 @@
 """
-Basic Memory FastMCP server.
+Basic Memory FastMCP server with console output suppression.
 """
 
 import asyncio
+import sys
+import os
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from typing import AsyncIterator, Optional, Any
@@ -39,7 +41,24 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[AppContext]:  # pragma:
         pass
 
 
-# Create the shared server instance with custom Stytch auth
+# Configure logging to suppress non-JSON output in MCP stdio mode
+def configure_mcp_logging():
+    """Configure logging to prevent interference with JSON responses."""
+    if not sys.stdout.isatty():  # MCP stdio mode
+        try:
+            from loguru import logger
+            # Remove all existing handlers
+            logger.remove()
+            # Add a minimal handler that only logs critical errors to stderr
+            logger.add(sys.stderr, level="ERROR", format="{message}")
+        except ImportError:
+            pass
+
+
+# Apply logging configuration
+configure_mcp_logging()
+
+# Create the shared server instance
 mcp = FastMCP(
     name="Basic Memory",
     lifespan=app_lifespan,
