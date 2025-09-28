@@ -6,6 +6,7 @@ complete documentation website from your knowledge base.
 
 import os
 import json
+import re
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -13,7 +14,26 @@ from datetime import datetime
 from loguru import logger
 
 from basic_memory.mcp.server import mcp
-from basic_memory.mcp.tools.list_directory import list_directory
+from basic_memory.mcp.tools.search import search_notes
+from basic_memory.mcp.tools.read_note import read_note
+
+
+def _sanitize_filename(filename: str) -> str:
+    """Sanitize filename for Windows compatibility."""
+    # Remove Windows-illegal characters: < > : " | ? * \
+    sanitized = re.sub(r'[<>:"|?*\\]', '-', filename)
+
+    # Replace multiple hyphens with single hyphen
+    sanitized = re.sub(r'-+', '-', sanitized)
+
+    # Remove leading/trailing hyphens and spaces
+    sanitized = sanitized.strip('- ')
+
+    # Ensure .md extension
+    if not sanitized.endswith('.md'):
+        sanitized += '.md'
+
+    return sanitized
 
 
 @mcp.tool(
@@ -82,7 +102,8 @@ async def export_docsify(
             notes_data,
             export_path_obj,
             site_title,
-            site_description
+            site_description,
+            project
         )
 
         return result
@@ -99,48 +120,38 @@ async def _get_notes_from_folder(
 ) -> List[Dict[str, Any]]:
     """Get all notes from the specified folder."""
     try:
-        # Use list_directory to get all files in the folder
-        depth = 10 if include_subfolders else 1
-
-        dir_result = await list_directory.fn(
-            dir_name=source_folder,
-            depth=depth,
-            project=project
+        # Use search_notes instead of parsing list_directory output
+        search_result = await search_notes.fn(
+            query="*",  # Get all notes
+            project=project,
+            page_size=1000,  # Large page size to get all notes
+            types=["entity"]  # Only get entity types (notes)
         )
 
-        # Parse the directory listing to extract note information
+        # Parse the search results properly
         notes_data = []
 
-        lines = dir_result.split('\n')
-        current_folder = source_folder
+        # Extract note information from search results
+        if hasattr(search_result, 'results'):
+            for result in search_result.results:
+                if hasattr(result, 'title') and hasattr(result, 'permalink'):
+                    # Filter by folder if specified
+                    if source_folder != "/" and source_folder != "":
+                        # Check if the note is in the specified folder
+                        file_path = getattr(result, 'file_path', '')
+                        if not file_path.startswith(source_folder.lstrip('/')):
+                            continue
 
-        for line in lines:
-            if line.startswith('📄') and '.md' in line:
-                # Extract filename and path
-                parts = line.split()
-                if len(parts) >= 2:
-                    filename = parts[1].strip()
-                    if filename.endswith('.md'):
-                        # Get the full path from the line
-                        path_part = line.split(' | ')[0] if ' | ' in line else parts[-1]
+                    # Create safe filename
+                    safe_filename = _sanitize_filename(result.title)
 
-                        # Remove leading slash if present
-                        if path_part.startswith('/'):
-                            path_part = path_part[1:]
-
-                        # Extract title if available
-                        title = filename[:-3]  # Remove .md
-                        if ' | ' in line:
-                            title_part = line.split(' | ')[1].strip()
-                            if title_part:
-                                title = title_part
-
-                        notes_data.append({
-                            'filename': filename,
-                            'path': path_part,
-                            'title': title,
-                            'folder': current_folder
-                        })
+                    notes_data.append({
+                        'title': result.title,
+                        'filename': safe_filename,
+                        'permalink': result.permalink,
+                        'path': getattr(result, 'file_path', ''),
+                        'folder': source_folder
+                    })
 
     except Exception as e:
         logger.error(f"Error getting notes from folder {source_folder}: {e}")
@@ -153,7 +164,8 @@ async def _process_docsify_export(
     notes_data: List[Dict[str, Any]],
     export_path: Path,
     site_title: str,
-    site_description: str
+    site_description: str,
+    project: Optional[str]
 ) -> str:
     """Process the export of notes to Docsify format."""
 
@@ -171,34 +183,22 @@ async def _process_docsify_export(
     # Process each note
     for note_info in notes_data:
         try:
-            # Calculate export paths
-            rel_path = note_info['path']
-            folder_path = export_path / rel_path
-            folder_path = folder_path.parent  # Remove the filename part
-            folder_path.mkdir(parents=True, exist_ok=True)
+            # FIXED: Create proper markdown file, not directory
+            safe_filename = _sanitize_filename(note_info['filename'])
+            md_path = export_path / safe_filename
 
-            if str(folder_path) != str(export_path):
-                stats['created_folders'] += 1
+            # Get ACTUAL note content
+            md_content = await _create_markdown_content(note_info, project)
 
-            # Keep original markdown filename
-            md_path = folder_path / note_info['filename']
-
-            # For now, create placeholder content
-            # In a real implementation, you'd read the actual note content
-            md_content = _create_markdown_content(note_info)
-
-            # Write markdown file
+            # Write the actual markdown file
             with open(md_path, 'w', encoding='utf-8') as f:
                 f.write(md_content)
 
-            # Track for sidebar
-            folder_key = str(folder_path.relative_to(export_path)) if folder_path != export_path else ''
-            if folder_key not in notes_by_folder:
-                notes_by_folder[folder_key] = []
-            notes_by_folder[folder_key].append({
+            # Track for sidebar (simplified structure)
+            notes_by_folder.setdefault('root', []).append({
                 'title': note_info['title'],
-                'md_path': str(md_path.relative_to(export_path)),
-                'original_path': note_info['path']
+                'filename': safe_filename,
+                'path': safe_filename
             })
 
             stats['exported_notes'] += 1
@@ -214,66 +214,58 @@ async def _process_docsify_export(
     return _generate_export_report(stats, export_path, site_title)
 
 
-def _create_markdown_content(note_info: Dict[str, Any]) -> str:
-    """Create markdown content for a note."""
-    # In a real implementation, this would use the actual note content
-    # For now, we'll create a simple markdown structure
+async def _create_markdown_content(note_info: Dict[str, Any], project: Optional[str]) -> str:
+    """Create markdown content for a note with ACTUAL content."""
+    try:
+        # Get the actual note content using read_note
+        note_data = await read_note.fn(
+            identifier=note_info['title'],  # Try title first
+            project=project
+        )
 
-    content = f"""# {note_info['title']}
+        # Extract content from the result
+        if isinstance(note_data, str) and note_data.startswith('# '):
+            # Already proper markdown with title
+            return note_data
+        else:
+            # Fallback: try permalink if title didn't work
+            if 'permalink' in note_info and note_info['permalink']:
+                try:
+                    note_data = await read_note.fn(
+                        identifier=note_info['permalink'],
+                        project=project
+                    )
+                    if isinstance(note_data, str) and note_data.startswith('# '):
+                        return note_data
+                except Exception:
+                    pass
 
-*Original path: {note_info['path']}*
-*Exported: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
+            # Last resort: create basic structure with whatever we got
+            title = note_info['title']
+            content_body = str(note_data) if note_data else "Content could not be retrieved."
 
----
+            return f"""# {title}
 
-## Content
-
-This is a placeholder. In a full implementation, the actual note content would appear here.
-
-## Note Information
-
-- **Title:** {note_info['title']}
-- **Original Path:** {note_info['path']}
-- **Filename:** {note_info['filename']}
-
-## Sample Content
-
-This note contains information about {note_info['title'].lower()}.
-
-### Section Example
-
-This is a sample section to demonstrate markdown structure.
-
-### Lists
-
-- List item 1
-- List item 2
-- List item 3
-
-### Code Example
-
-```javascript
-function helloWorld() {{
-    console.log("Hello, World!");
-}}
-```
-
-### Links
-
-- [Internal Link Example](relative-link)
-- [External Link](https://example.com)
-
-### Blockquote
-
-> This is a blockquote example.
-> It can span multiple lines.
+{content_body}
 
 ---
 
-*Generated by Basic Memory Docsify Export*
-"""
+*Original path: {note_info.get('path', 'Unknown')}*
+*Permalink: {note_info.get('permalink', 'Unknown')}*
+*Exported: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*"""
 
-    return content
+    except Exception as e:
+        logger.error(f"Failed to read note content for {note_info['title']}: {e}")
+        # Fallback to basic structure only if read fails
+        return f"""# {note_info['title']}
+
+Error loading content: {e}
+
+---
+
+*Original path: {note_info.get('path', 'Unknown')}*
+*Permalink: {note_info.get('permalink', 'Unknown')}*
+*Exported: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*"""
 
 
 async def _create_docsify_files(

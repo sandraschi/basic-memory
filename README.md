@@ -565,19 +565,51 @@ delete_project(name) - Delete projects from configuration
 set_default_project(name) - Set default project
 sync_status() - Check file synchronization status
 
-# Import/Export Tools
+# Core Tools
+write_note(title, content, folder, tags) - Create new notes with metadata
+read_note(identifier, page, page_size, project) - Read notes by title/permalink
+edit_note(identifier, content) - Update existing note content
+delete_note(identifier) - Remove notes from knowledge base
+search_notes(query, page, page_size, search_type, types, entity_types, after_date, project) - Full-text search with filters
+list_directory(path, project) - Browse folder structure
+recent_activity(timeframe, project) - View recent content changes
+
+# System & Status Tools
+sync_status(project) - Check file synchronization progress
+status(level, focus) - Comprehensive system status and diagnostics
+help(level, topic) - Detailed help and system information
+
+# Import Tools
 load_obsidian_vault(path, folder, convert_links) - Import Obsidian vaults
 load_obsidian_canvas(path, folder) - Import Obsidian canvas files
 load_joplin_vault(path, folder) - Import Joplin exports
+load_notion_export(path, folder, preserve_hierarchy) - Import Notion HTML/Markdown exports
+load_evernote_export(path, folder, preserve_notebooks) - Import Evernote ENEX exports
+
+# Search Tools
 search_obsidian_vault(path, query, type) - Search Obsidian vaults externally
 search_joplin_vault(path, query, type) - Search Joplin exports externally
+search_notion_vault(path, query, file_type) - Search Notion exports externally
+search_evernote_vault(path, query, file_type) - Search Evernote ENEX/HTML exports
+
+# Export Tools
 export_html_notes(path, folder) - Export notes to HTML with Mermaid support
 export_joplin_notes(path, folder) - Export notes to Joplin format
+export_notion_compatible(path, query, folder_filter) - Export notes to Notion-compatible format
+export_evernote_compatible(path, query, folder_filter) - Export notes to Evernote ENEX format
 export_docsify(path, folder) - Export notes to Docsify documentation site
 
 # Rich Editing Tools
 edit_in_typora(note_id, workspace) - Export note for Typora editing
 import_from_typora(note_id, workspace) - Import edited note from Typora
+
+# Project Management
+list_memory_projects() - View all configured projects
+switch_project(name) - Change active project context
+create_memory_project(name, path, set_default) - Create new project workspace
+delete_project(name) - Remove project configuration
+get_current_project() - Display current project information
+set_default_project(name) - Set default project for new sessions
 ```
 
 5. Example prompts to try:

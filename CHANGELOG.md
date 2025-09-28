@@ -15,6 +15,8 @@
   - `export_html_notes`: Improved with Mermaid diagram rendering
   - `export_docsify`: New tool for creating documentation sites
   - `export_joplin_notes`: Export to Joplin format for cross-platform compatibility
+  - `export_notion_compatible`: Export to Notion-compatible markdown format
+  - `export_evernote_compatible`: Export to Evernote ENEX XML format for seamless import
 
 - **Typora Integration Tools**
   - `edit_in_typora`: Export notes for rich editing in Typora
@@ -26,13 +28,47 @@
   - `load_obsidian_vault`: Enhanced with link conversion and structure preservation
   - `load_obsidian_canvas`: Import visual canvas files as Basic Memory content
   - `load_joplin_vault`: Import Joplin exports with metadata preservation
+  - `load_notion_export`: Import Notion HTML/Markdown exports with content conversion
+  - `load_evernote_export`: Import Evernote ENEX exports with XML parsing and attachment handling
   - `search_obsidian_vault`: Search external Obsidian vaults
   - `search_joplin_vault`: Search external Joplin exports
+  - `search_notion_vault`: Search external Notion exports
+  - `search_evernote_vault`: Search external Evernote ENEX and HTML exports
 
 - **Filename Sanitization**
   - Automatic sanitization of note titles for filesystem safety
   - Support for special characters in timestamps and project names
   - Consistent filename generation across all export tools
+
+### System & Documentation Tools
+
+- **Enhanced Help System** (`help` tool) - Multilevel help and documentation
+  - Basic overview for getting started
+  - Intermediate tool descriptions and workflows
+  - Advanced technical architecture details
+  - Expert development and troubleshooting information
+  - Topic-specific help (semantic-net, claude, tools, etc.)
+
+- **Comprehensive Status Tool** (`status` tool) - System diagnostics and monitoring
+  - Basic system status and sync information
+  - Intermediate tool availability and configuration
+  - Advanced performance metrics and resources
+  - Diagnostic troubleshooting information
+  - Focused status reports (sync, tools, system, projects)
+
+### Bug Fixes
+
+- **Docsify Export** - Major functionality restoration
+  - Replaced placeholder content generation with actual note reading
+  - Fixed file structure creation to generate proper markdown files instead of directories
+  - Implemented robust filename sanitization for Windows compatibility
+  - Replaced brittle `list_directory` parsing with proper `search_notes` API calls
+  - Added comprehensive error handling and progress reporting
+  - Docsify export now creates functional documentation sites with real content
+
+- **MCP Server Startup** - Fixed FastMCP compatibility issue with `show_banner` parameter
+  - Removed unsupported `show_banner` parameter from MCP server initialization
+  - MCP server now starts correctly in Claude Desktop and other MCP clients
 
 - **Enhanced Search Functionality**
   - Improved search with sanitized filename matching
