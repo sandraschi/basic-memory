@@ -16,6 +16,7 @@ Claude, while keeping everything in simple Markdown files on your computer. It u
 enable any compatible LLM to read and write to your local knowledge base.
 
 **This enhanced fork adds:**
+- 🛡️ **Safer File Operations** - Prevents choking on node_modules, build artifacts, and large directories through intelligent filtering
 - 🎨 **Mermaid diagram support** - Visual diagrams that render in HTML exports
 - ✏️ **Typora integration** - Rich editing with round-trip workflow
 - 📚 **Extended import/export** - Joplin, Docsify, and enhanced HTML tools
@@ -227,6 +228,31 @@ Filtering these files provides significant benefits:
 - **Cleaner knowledge base** (focuses on source content, not build artifacts)
 
 To customize these patterns, modify the `IGNORE_PATTERNS` set in the source code.
+
+## Enhanced File Operations (Fork Feature)
+
+**This enhanced fork significantly improves file handling performance and reliability:**
+
+### Intelligent File Filtering
+- **Automatic exclusion** of development dependencies (node_modules, __pycache__, etc.)
+- **Build artifact filtering** (dist/, build/, target/, .next/, etc.)
+- **Package manager directories** (vendor/, packages/, bower_components/)
+- **Log file exclusion** (*.log, logs/, npm-debug.log*, etc.)
+- **IDE file filtering** (.vscode/, .idea/, *.sublime-*)
+
+### Performance Benefits
+- **Faster sync times** - Especially important for initial project sync
+- **Reduced memory usage** - Avoids processing large dependency trees
+- **Lower disk I/O** - Fewer files to watch and process
+- **Improved reliability** - Prevents timeouts on large codebases
+
+### Developer-Friendly
+- **Transparent operation** - Works automatically without configuration
+- **Comprehensive coverage** - Handles all major development frameworks
+- **Extensible patterns** - Easy to add custom exclusions
+- **Cross-platform** - Works on Windows, macOS, and Linux
+
+This was the original motivation for this fork - to prevent Basic Memory from becoming unresponsive when working in development environments with large dependency trees.
 
 ## Mermaid Diagram Support
 
