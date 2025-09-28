@@ -7,11 +7,20 @@
 ![](https://badge.mcpx.dev?type=dev 'MCP Dev')
 [![smithery badge](https://smithery.ai/badge/@basicmachines-co/basic-memory)](https://smithery.ai/server/@basicmachines-co/basic-memory)
 
-# Basic Memory
+# Basic Memory (Enhanced Fork)
+
+**🚀 Enhanced Version with Mermaid Diagrams & Extended Tools**
 
 Basic Memory lets you build persistent knowledge through natural conversations with Large Language Models (LLMs) like
 Claude, while keeping everything in simple Markdown files on your computer. It uses the Model Context Protocol (MCP) to
 enable any compatible LLM to read and write to your local knowledge base.
+
+**This enhanced fork adds:**
+- 🎨 **Mermaid diagram support** - Visual diagrams that render in HTML exports
+- ✏️ **Typora integration** - Rich editing with round-trip workflow
+- 📚 **Extended import/export** - Joplin, Docsify, and enhanced HTML tools
+- 🔍 **Enhanced search** - Better handling of special characters
+- 📊 **Multiple export formats** - PDF, Word, HTML, and documentation sites
 
 - Website: https://basicmemory.com
 - Company: https://basicmachines.co
@@ -61,20 +70,81 @@ You can view shared context via files in `~/basic-memory` (default directory loc
 
 ### Alternative Installation via Smithery
 
-You can use [Smithery](https://smithery.ai/server/@basicmachines-co/basic-memory) to automatically configure Basic
-Memory for Claude Desktop:
+## Enhanced Version with Mermaid Diagrams & Extended Tools
+
+This fork includes significant enhancements including:
+- **Mermaid diagram support** - Add visual diagrams to your notes that render in HTML exports
+- **Typora integration** - Rich editing with round-trip workflow
+- **Extended import/export** - Joplin, Docsify, and enhanced HTML export tools
+- **Enhanced search** - Better handling of special characters and filename sanitization
+
+### Installation Options
+
+#### Standard Installation (Original)
+You can use [Smithery](https://smithery.ai/server/@basicmachines-co/basic-memory) to automatically configure the original Basic Memory for Claude Desktop:
 
 ```bash
 npx -y @smithery/cli install @basicmachines-co/basic-memory --client claude
 ```
 
-This installs and configures Basic Memory without requiring manual edits to the Claude Desktop configuration file. Note: The Smithery installation uses their hosted MCP server, while your data remains stored locally as Markdown files.
+#### Enhanced Installation (This Fork)
+To install this enhanced version with Mermaid diagrams and extended tools:
+
+**Manual Installation:**
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json` and add:
+
+```json
+{
+  "mcpServers": {
+    "basic-memory-enhanced": {
+      "command": "uvx",
+      "args": [
+        "git+https://github.com/sandraschi/basic-memory.git@feature/safer-file-operations",
+        "mcp"
+      ]
+    }
+  }
+}
+```
+
+**Alternative - Local Installation:**
+```bash
+# Clone this enhanced repository
+git clone https://github.com/sandraschi/basic-memory.git
+cd basic-memory
+
+# Install locally
+pip install -e .
+
+# Configure Claude Desktop to use local installation
+# Edit ~/Library/Application Support/Claude/claude_desktop_config.json
+{
+  "mcpServers": {
+    "basic-memory-enhanced": {
+      "command": "python",
+      "args": [
+        "-m",
+        "basic_memory.mcp.server"
+      ]
+    }
+  }
+}
+```
+
+**Smithery Installation:**
+For Smithery users, you can install from this enhanced fork:
+
+```bash
+npx -y @smithery/cli install @sandraschi/basic-memory --client claude
+```
+
+This installs and configures the enhanced Basic Memory without requiring manual edits to the Claude Desktop configuration file.
 
 ### Add to Cursor
 
 Once you have installed Basic Memory revisit this page for the 1-click installer for Cursor:
 
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=basic-memory&config=eyJjb21tYW5kIjoiL1VzZXJzL2RyZXcvLmxvY2FsL2Jpbi91dnggYmFzaWMtbWVtb3J5IG1jcCJ9)
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=basic-memory-enhanced&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJnaXQraHR0cHM6Ly9naXRodWIuY29tL3NhbmRyYXNjaGkvYmFzaWMtbWVtb3J5LmdpdEBmZWF0dXJlL3NhZmVyLWZpbGUtb3BlcmF0aW9ucyIsIm1jcCJdfQ==)
 
 
 ### Glama.ai
