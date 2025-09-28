@@ -15,6 +15,8 @@ from basic_memory.mcp.tools.view_note import view_note
 from basic_memory.mcp.tools.write_note import write_note
 from basic_memory.mcp.tools.search import search_notes
 from basic_memory.mcp.tools.canvas import canvas
+from basic_memory.mcp.tools.export_docsify import export_docsify
+from basic_memory.mcp.tools.export_html_notes import export_html_notes
 from basic_memory.mcp.tools.export_joplin_notes import export_joplin_notes
 from basic_memory.mcp.tools.load_canvas import load_obsidian_canvas
 from basic_memory.mcp.tools.load_joplin_vault import load_joplin_vault
@@ -38,6 +40,8 @@ __all__ = [
     "build_context",
     "canvas",
     "create_memory_project",
+    "export_docsify",
+    "export_html_notes",
     "export_joplin_notes",
     "load_joplin_vault",
     "load_obsidian_canvas",
