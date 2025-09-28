@@ -114,6 +114,7 @@ With Basic Memory, you can:
 - Keep everything local and under your control
 - Use familiar tools like Obsidian to view and edit notes
 - Build a personal knowledge base that grows over time
+- Create visual diagrams with Mermaid for better knowledge representation
 
 ## File Filtering
 
@@ -156,6 +157,51 @@ Filtering these files provides significant benefits:
 - **Cleaner knowledge base** (focuses on source content, not build artifacts)
 
 To customize these patterns, modify the `IGNORE_PATTERNS` set in the source code.
+
+## Mermaid Diagram Support
+
+Basic Memory supports Mermaid diagrams for creating visual representations of your knowledge. Add Mermaid code blocks to any note and they'll render automatically in HTML exports.
+
+### Supported Diagram Types
+- **Flowcharts** - Process flows, decision trees, workflows
+- **Sequence diagrams** - API interactions, user journeys
+- **Gantt charts** - Project timelines, task dependencies
+- **Mind maps** - Knowledge organization, brainstorming
+- **Entity relationship diagrams** - Data models, system architecture
+- **State diagrams** - Process states, user flows
+- **Pie charts** - Data visualization
+- **And many more...**
+
+### Example Usage
+
+Add this to any note:
+
+````markdown
+```mermaid
+graph TD
+    A[User Login] --> B[Validate Credentials]
+    B --> C[Credentials Valid?]
+    C -->|Yes| D[Grant Access]
+    C -->|No| E[Show Error]
+    D --> F[Dashboard]
+    E --> A
+```
+````
+
+Then export to HTML to see the rendered diagram:
+
+```bash
+await export_html_notes.fn(export_path="/path/to/html-export")
+```
+
+### Integration with Typora
+
+Since Basic Memory integrates with Typora, you can:
+- Edit diagrams visually in Typora's live preview
+- Use Typora's extensive export options (PDF, Word, HTML, etc.)
+- Leverage Typora's diagram editing features
+
+See the [Mermaid Diagrams Guide](docs/mermaid-diagrams.md) for detailed documentation and examples.
 
 ## How It Works in Practice
 
@@ -422,6 +468,20 @@ create_memory_project(name, path, set_default) - Create new projects
 delete_project(name) - Delete projects from configuration
 set_default_project(name) - Set default project
 sync_status() - Check file synchronization status
+
+# Import/Export Tools
+load_obsidian_vault(path, folder, convert_links) - Import Obsidian vaults
+load_obsidian_canvas(path, folder) - Import Obsidian canvas files
+load_joplin_vault(path, folder) - Import Joplin exports
+search_obsidian_vault(path, query, type) - Search Obsidian vaults externally
+search_joplin_vault(path, query, type) - Search Joplin exports externally
+export_html_notes(path, folder) - Export notes to HTML with Mermaid support
+export_joplin_notes(path, folder) - Export notes to Joplin format
+export_docsify(path, folder) - Export notes to Docsify documentation site
+
+# Rich Editing Tools
+edit_in_typora(note_id, workspace) - Export note for Typora editing
+import_from_typora(note_id, workspace) - Import edited note from Typora
 ```
 
 5. Example prompts to try:

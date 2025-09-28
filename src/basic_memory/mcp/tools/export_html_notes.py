@@ -182,6 +182,10 @@ async def _process_html_export(
             # In a real implementation, you'd read the actual note content
             html_content = _create_html_content(note_info)
 
+            # Check if note contains Mermaid diagrams and inject support
+            if _contains_mermaid(html_content):
+                html_content = _inject_mermaid_support(html_content)
+
             # Write HTML file
             with open(html_path, 'w', encoding='utf-8') as f:
                 f.write(html_content)
@@ -640,3 +644,98 @@ def _generate_export_report(
     ])
 
     return "\n".join(lines)
+
+
+def _contains_mermaid(content: str) -> bool:
+    """Check if HTML content contains Mermaid diagram code blocks."""
+    return '```mermaid' in content or '``` mermaid' in content
+
+
+def _inject_mermaid_support(html_content: str) -> str:
+    """Inject Mermaid.js library and initialization into HTML content."""
+    # Split HTML into head and body for injection
+    head_end = html_content.find('</head>')
+    body_end = html_content.find('</body>')
+
+    if head_end == -1 or body_end == -1:
+        # Fallback: inject at the end if proper HTML structure not found
+        return html_content + _get_mermaid_injection()
+
+    # Inject CSS and JS into head
+    head_injection = '''
+    <!-- Mermaid Diagram Support -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        .mermaid {
+            text-align: center;
+            margin: 20px 0;
+        }
+    </style>
+'''
+
+    # Inject initialization script before closing body
+    body_injection = '''
+    <script>
+        // Initialize Mermaid with safe configuration
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            fontFamily: 'arial',
+            fontSize: 14,
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            },
+            sequence: {
+                useMaxWidth: true,
+                htmlLabels: true
+            },
+            gantt: {
+                useMaxWidth: true
+            }
+        });
+
+        // Re-render Mermaid diagrams after page load
+        document.addEventListener('DOMContentLoaded', function() {{
+            setTimeout(function() {{
+                mermaid.init(undefined, document.querySelectorAll('.mermaid'));
+            }}, 100);
+        }});
+    </script>
+'''
+
+    # Insert injections
+    html_content = (
+        html_content[:head_end] +
+        head_injection +
+        html_content[head_end:body_end] +
+        body_injection +
+        html_content[body_end:]
+    )
+
+    return html_content
+
+
+def _get_mermaid_injection() -> str:
+    """Get Mermaid injection code for fallback cases."""
+    return '''
+<!-- Mermaid Diagram Support -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.css">
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        securityLevel: 'loose'
+    });
+</script>
+<style>
+    .mermaid {
+        text-align: center;
+        margin: 20px 0;
+    }
+</style>
+'''

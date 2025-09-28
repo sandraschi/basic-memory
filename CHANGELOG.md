@@ -1,5 +1,67 @@
 # CHANGELOG
 
+## v0.14.3 (2025-09-28)
+
+### Features
+
+- **Mermaid Diagram Support** - Phase 1 implementation complete
+  - HTML export now automatically renders Mermaid diagrams
+  - Support for flowcharts, sequence diagrams, Gantt charts, mind maps, ER diagrams, and more
+  - CDN-based Mermaid.js integration for fast loading
+  - Comprehensive documentation and examples in `docs/mermaid-diagrams.md`
+  - Example templates in `docs/examples/mermaid/`
+
+- **Enhanced Export Capabilities**
+  - `export_html_notes`: Improved with Mermaid diagram rendering
+  - `export_docsify`: New tool for creating documentation sites
+  - `export_joplin_notes`: Export to Joplin format for cross-platform compatibility
+
+- **Typora Integration Tools**
+  - `edit_in_typora`: Export notes for rich editing in Typora
+  - `import_from_typora`: Import edited content back into Basic Memory
+  - Round-trip workflow for leveraging Typora's advanced features
+  - Workspace management for organized editing sessions
+
+- **Expanded Import Ecosystem**
+  - `load_obsidian_vault`: Enhanced with link conversion and structure preservation
+  - `load_obsidian_canvas`: Import visual canvas files as Basic Memory content
+  - `load_joplin_vault`: Import Joplin exports with metadata preservation
+  - `search_obsidian_vault`: Search external Obsidian vaults
+  - `search_joplin_vault`: Search external Joplin exports
+
+- **Filename Sanitization**
+  - Automatic sanitization of note titles for filesystem safety
+  - Support for special characters in timestamps and project names
+  - Consistent filename generation across all export tools
+
+- **Enhanced Search Functionality**
+  - Improved search with sanitized filename matching
+  - Better handling of special characters in queries
+  - Enhanced relevance ranking and result presentation
+
+### Documentation
+
+- **Mermaid Integration Plan**: Comprehensive roadmap in `docs/mermaid-integration-plan.md`
+- **Mermaid Usage Guide**: Complete documentation in `docs/mermaid-diagrams.md`
+- **Example Templates**: Practical examples in `docs/examples/mermaid/`
+- **README Updates**: Enhanced with new features and capabilities
+- **Tool Documentation**: Updated tool listings and usage examples
+
+### Technical Improvements
+
+- **Enhanced HTML Export**: Automatic Mermaid.js injection for diagram rendering
+- **Improved Error Handling**: Better validation and user feedback
+- **Code Organization**: Modular tool structure for maintainability
+- **Cross-Platform Compatibility**: Consistent behavior across operating systems
+- **Performance Optimizations**: Efficient file processing and memory usage
+
+### Bug Fixes
+
+- **Import Path Resolution**: Fixed module import issues in new tools
+- **Parameter Validation**: Improved input validation for export tools
+- **File Encoding**: Consistent UTF-8 handling across all text operations
+- **Error Recovery**: Graceful handling of missing files and permissions
+
 ## v0.14.2 (2025-07-03)
 
 ### Bug Fixes
