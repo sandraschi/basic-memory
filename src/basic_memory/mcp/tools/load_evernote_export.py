@@ -18,7 +18,53 @@ from basic_memory.mcp.project_session import get_active_project
 
 
 @mcp.tool(
-    description="Import Evernote ENEX exports into Basic Memory",
+    description="""Import Evernote ENEX files into Basic Memory with complete content and metadata preservation.
+
+This tool processes Evernote's ENEX (Evernote XML) export format, converting rich notes
+with attachments into clean Basic Memory markdown while preserving all organizational structure.
+
+EVERNOTE FEATURES SUPPORTED:
+- ENEX XML format parsing with full metadata extraction
+- Rich HTML content conversion to clean markdown
+- Notebook hierarchy preservation (stacks become folders)
+- Tag system conversion and mapping
+- Creation and modification timestamps
+- Base64-encoded attachment extraction (images, files, audio)
+- Note links and cross-references
+
+PARAMETERS:
+- export_path (str, REQUIRED): Path to .enex file or directory containing ENEX files
+- folder (str, default="evernote-import"): Basic Memory folder for imported content
+- preserve_notebooks (bool, default=True): Maintain Evernote notebook hierarchy
+- include_attachments (bool, default=True): Extract and save embedded media files
+- project (str, optional): Target Basic Memory project
+
+ENEX FILE STRUCTURE:
+Evernote exports are XML files containing:
+- Note content in HTML format with Evernote-specific styling
+- Metadata: title, creation date, modification date, tags
+- Notebook and stack information
+- Embedded resources (images, files, audio) as base64
+
+CONTENT CONVERSION:
+- HTML rich text → Clean markdown formatting
+- Evernote tables → Markdown table syntax
+- Embedded images → Extracted files with proper references
+- Internal links → Basic Memory entity relationships
+- Tags → Preserved as metadata tags
+
+USAGE EXAMPLES:
+Single file: load_evernote_export("my-notes.enex")
+Directory: load_evernote_export("/path/to/enex-files")
+Custom folder: load_evernote_export("export.enex", folder="archive/evernote")
+No attachments: load_evernote_export("notes.enex", include_attachments=False)
+Flat structure: load_evernote_export("notes.enex", preserve_notebooks=False)
+
+RETURNS:
+Detailed import report with note counts, attachment extractions, notebook mappings, and any conversion issues.
+
+NOTE: ENEX files can be large with many embedded attachments. Processing time depends on file size
+and attachment count. Use include_attachments=False for faster imports without media files.""",
 )
 async def load_evernote_export(
     export_path: str,

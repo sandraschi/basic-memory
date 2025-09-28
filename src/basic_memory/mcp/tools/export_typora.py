@@ -6,6 +6,8 @@ enabling export to multiple formats through Typora's export capabilities.
 
 import os
 import re
+import subprocess
+import shutil
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -14,16 +16,105 @@ from loguru import logger
 
 from basic_memory.mcp.server import mcp
 from basic_memory.mcp.tools.list_directory import list_directory
+from basic_memory.mcp.tools.search import search_notes
+from basic_memory.mcp.tools.read_note import read_note
 
 
 @mcp.tool(
-    description="Export Basic Memory notes to Typora-optimized markdown for multi-format export.",
+    description="""Export Basic Memory notes with full Typora integration for professional multi-format publishing.
+
+This comprehensive export tool bridges Basic Memory and Typora's powerful publishing capabilities,
+enabling export to professional document formats with rich formatting and layout control.
+
+TYPORA EXPORT FORMATS SUPPORTED:
+- **PDF** - Professional documents with themes, headers, footers, and table of contents
+- **Word (.docx)** - Microsoft Word compatible documents
+- **HTML** - Web-ready pages with embedded styles
+- **OpenDocument (.odt)** - LibreOffice compatible format
+- **Rich Text (.rtf)** - Universal rich text format
+- **LaTeX** - Academic and technical document preparation
+- **Plain Text** - Clean text with preserved structure
+- **And more formats supported by Typora!**
+
+EXPORT CAPABILITIES:
+- **Themes & Styling**: Professional document themes and custom CSS
+- **Page Layout**: Custom margins, headers, footers, page breaks
+- **Table of Contents**: Automatic TOC generation and numbering
+- **Image Handling**: Automatic resizing and positioning
+- **Math Support**: LaTeX equation rendering and formatting
+- **Code Syntax**: Highlighted code blocks with language detection
+- **Typography**: Professional fonts and spacing
+
+PARAMETERS:
+- export_path (str, REQUIRED): Directory where Typora export files will be created
+- source_folder (str, default="/"): Basic Memory folder to export (use "/" for all notes)
+- include_subfolders (bool, default=True): Include subfolders recursively
+- format_type (str, default="markdown"): Preparation mode ("markdown", "html", "pdf_info")
+- direct_export_format (str, optional): Direct export format ("pdf", "docx", "html", "rtf", "odt", "tex")
+- include_frontmatter (bool, default=True): Include metadata in exported files
+- project (str, optional): Specific Basic Memory project to export from
+
+EXPORT WORKFLOW:
+1. **Preparation**: Export notes as Typora-optimized markdown with proper formatting
+2. **Typora Processing**: Open files in Typora for layout and styling adjustments
+3. **Format Export**: Use Typora's export menu to generate final documents
+4. **Batch Processing**: Export multiple notes to consistent formats
+
+TYPORA FEATURES LEVERAGED:
+- **Live Preview**: WYSIWYG editing with instant formatting feedback
+- **Table Editor**: Visual table creation and formatting
+- **Math Rendering**: Live LaTeX equation preview
+- **Image Tools**: Drag-drop image insertion and resizing
+- **Outline View**: Document structure management
+- **Themes**: Multiple professional document themes
+
+DIRECT EXPORT FORMATS:
+- **pdf**: Professional PDF with themes and table of contents
+- **docx**: Microsoft Word document format
+- **html**: Standalone HTML with embedded styles
+- **rtf**: Rich Text Format for universal compatibility
+- **odt**: OpenDocument format for LibreOffice
+- **tex**: LaTeX source for academic publishing
+
+USAGE EXAMPLES:
+Basic export: export_typora("typora-ready/")
+Direct PDF: export_typora("exports/", direct_export_format="pdf")
+Word docs: export_typora("docs/", direct_export_format="docx")
+Project docs: export_typora("docs/", source_folder="projects/alpha")
+Single folder: export_typora("export/", include_subfolders=False)
+With metadata: export_typora("export/", include_frontmatter=True)
+
+OUTPUT FILES:
+- **Markdown files**: Typora-ready with proper formatting and structure
+- **HTML preview**: index.html for web preview of export
+- **PDF guide**: PDF_Export_Guide.md with detailed instructions
+- **Workspace config**: workspace-config.json for Typora workspace setup
+
+TYPORA EXPORT PROCESS:
+1. Open exported .md files in Typora
+2. Apply themes and adjust formatting as needed
+3. Use File → Export menu to select format:
+   - PDF (with theme selection)
+   - Word (.docx)
+   - HTML (with CSS)
+   - LaTeX (for academic papers)
+   - RTF (rich text)
+   - And many more...
+
+RETURNS:
+Comprehensive export report with file statistics, Typora integration instructions,
+and step-by-step guides for each supported export format.
+
+NOTE: Use direct_export_format for automatic conversion if Typora is installed.
+Otherwise, this tool prepares content for manual export through Typora's interface.
+For direct API-based export without Typora, consider using export_html_notes() or export_docsify() tools.""",
 )
 async def export_typora(
     export_path: str,
     source_folder: str = "/",
     include_subfolders: bool = True,
     format_type: str = "markdown",
+    direct_export_format: Optional[str] = None,
     include_frontmatter: bool = True,
     project: Optional[str] = None,
 ) -> str:
@@ -52,15 +143,23 @@ async def export_typora(
         source_folder: Folder in Basic Memory to export from (default: root "/")
         include_subfolders: Whether to include subfolders recursively (default: True)
         format_type: Export format - "markdown" (default), "html", "pdf_info"
+        direct_export_format: Direct export to format ("pdf", "docx", "html", "rtf", "odt", "tex")
+                           Requires Typora to be installed and available in PATH
         include_frontmatter: Whether to include YAML frontmatter (default: True)
         project: Optional project name to export from. If not provided, uses current active project.
 
     Returns:
-        Detailed export summary with Typora usage instructions.
+        Detailed export summary with Typora usage instructions and direct export results.
 
     Examples:
         # Export for Typora markdown editing
         result = await export_typora.fn(export_path="/path/to/typora-export")
+
+        # Direct PDF export (requires Typora installed)
+        result = await export_typora.fn(
+            export_path="/path/to/export",
+            direct_export_format="pdf"
+        )
 
         # Export specific folder for PDF generation
         result = await export_typora.fn(
@@ -98,6 +197,15 @@ async def export_typora(
             include_frontmatter
         )
 
+        # If direct export format is specified, attempt direct conversion
+        if direct_export_format:
+            direct_result = await _perform_direct_export(
+                export_path_obj,
+                notes_data,
+                direct_export_format
+            )
+            result += "\n\n" + direct_result
+
         return result
 
     except Exception as e:
@@ -105,55 +213,241 @@ async def export_typora(
         return f"# Typora Export Failed\n\nUnexpected error: {e}"
 
 
+async def _perform_direct_export(
+    export_path: Path,
+    notes_data: List[Dict[str, Any]],
+    export_format: str
+) -> str:
+    """Attempt direct export using Typora command line if available."""
+    lines = ["## Direct Export Results", ""]
+
+    # Check if Typora is available
+    typora_path = _find_typora_executable()
+    if not typora_path:
+        lines.extend([
+            "❌ **Typora not found**",
+            "Direct export requires Typora to be installed and available in PATH.",
+            "Falling back to markdown preparation only.",
+            "",
+            "**To enable direct export:**",
+            "1. Install Typora from https://typora.io",
+            "2. Ensure Typora executable is in your system PATH",
+            "3. Try the export again"
+        ])
+        return "\n".join(lines)
+
+    # Supported formats mapping
+    format_mapping = {
+        'pdf': 'pdf',
+        'docx': 'docx',
+        'html': 'html',
+        'rtf': 'rtf',
+        'odt': 'odt',
+        'tex': 'tex'
+    }
+
+    if export_format not in format_mapping:
+        lines.append(f"❌ **Unsupported format:** {export_format}")
+        lines.append(f"Supported formats: {', '.join(format_mapping.keys())}")
+        return "\n".join(lines)
+
+    lines.extend([
+        f"✅ **Typora found:** {typora_path}",
+        f"📄 **Export format:** {export_format.upper()}",
+        ""
+    ])
+
+    # Create output directory for exported files
+    output_dir = export_path / f"exported_{export_format}"
+    output_dir.mkdir(exist_ok=True)
+
+    success_count = 0
+    fail_count = 0
+    exported_files = []
+
+    # Process each note
+    for note_info in notes_data:
+        try:
+            # Get the markdown file path
+            md_file = export_path / note_info['filename']
+            if not md_file.exists():
+                fail_count += 1
+                continue
+
+            # Determine output filename
+            base_name = note_info['filename'][:-3]  # Remove .md extension
+            output_file = output_dir / f"{base_name}.{format_mapping[export_format]}"
+
+            # Run Typora export command
+            cmd = [
+                typora_path,
+                "--export", export_format,
+                str(md_file),
+                "--output", str(output_file)
+            ]
+
+            logger.info(f"Running Typora export: {' '.join(cmd)}")
+
+            result = subprocess.run(
+                cmd,
+                capture_output=True,
+                text=True,
+                timeout=60  # 60 second timeout per file
+            )
+
+            if result.returncode == 0:
+                success_count += 1
+                exported_files.append({
+                    'title': note_info['title'],
+                    'format': export_format.upper(),
+                    'path': str(output_file.relative_to(export_path))
+                })
+                logger.info(f"Successfully exported {note_info['title']} to {export_format}")
+            else:
+                fail_count += 1
+                logger.warning(f"Failed to export {note_info['title']}: {result.stderr}")
+
+        except subprocess.TimeoutExpired:
+            fail_count += 1
+            logger.error(f"Timeout exporting {note_info['title']}")
+        except Exception as e:
+            fail_count += 1
+            logger.error(f"Error exporting {note_info['title']}: {e}")
+
+    # Generate results summary
+    lines.extend([
+        f"📊 **Export Summary:**",
+        f"- **Successful exports:** {success_count}",
+        f"- **Failed exports:** {fail_count}",
+        f"- **Output directory:** {output_dir.relative_to(export_path)}",
+        ""
+    ])
+
+    if exported_files:
+        lines.append("📁 **Exported Files:**")
+        for file_info in exported_files:
+            lines.append(f"- **{file_info['title']}** → {file_info['path']}")
+        lines.append("")
+
+    if success_count > 0:
+        lines.extend([
+            "✅ **Direct export completed successfully!**",
+            f"Files are ready in: `{output_dir}`"
+        ])
+    else:
+        lines.extend([
+            "❌ **All direct exports failed**",
+            "Check Typora installation and try manual export through Typora interface."
+        ])
+
+    return "\n".join(lines)
+
+
+def _find_typora_executable() -> Optional[str]:
+    """Find Typora executable in system PATH."""
+    # Common executable names for different platforms
+    candidates = ['typora', 'Typora', 'typora.exe']
+
+    for candidate in candidates:
+        if shutil.which(candidate):
+            return candidate
+
+    # Check common installation paths (macOS example)
+    common_paths = [
+        '/Applications/Typora.app/Contents/MacOS/Typora',  # macOS
+        'C:\\Program Files\\Typora\\Typora.exe',  # Windows
+        '/usr/bin/typora',  # Linux
+        '/usr/local/bin/typora'  # Linux alternative
+    ]
+
+    for path in common_paths:
+        if os.path.exists(path) and os.access(path, os.X_OK):
+            return path
+
+    return None
+
+
 async def _get_notes_from_folder(
     source_folder: str,
     include_subfolders: bool,
     project: Optional[str]
 ) -> List[Dict[str, Any]]:
-    """Get all notes from the specified folder."""
+    """Get all notes from the specified folder with full content."""
     try:
-        # Use list_directory to get all files in the folder
-        depth = 10 if include_subfolders else 1
-
-        dir_result = await list_directory.fn(
-            dir_name=source_folder,
-            depth=depth,
+        # Use search_notes to find all notes in the folder
+        # We'll search for all notes and then filter by folder
+        search_query = "*"  # Match all notes
+        search_result = await search_notes.fn(
+            query=search_query,
+            page=1,
+            page_size=1000,  # Large page to get all notes
+            search_type="text",
             project=project
         )
 
-        # Parse the directory listing to extract note information
         notes_data = []
 
-        lines = dir_result.split('\n')
-        current_folder = source_folder
+        # Filter notes by folder and get their content
+        for note in search_result.get('results', []):
+            note_path = note.get('path', '')
+            note_title = note.get('title', '')
 
-        for line in lines:
-            if line.startswith('📄') and '.md' in line:
-                # Extract filename and path
-                parts = line.split()
-                if len(parts) >= 2:
-                    filename = parts[1].strip()
-                    if filename.endswith('.md'):
-                        # Get the full path from the line
-                        path_part = line.split(' | ')[0] if ' | ' in line else parts[-1]
+            # Check if note is in the requested folder
+            if include_subfolders:
+                # Include notes in subfolders
+                folder_matches = note_path.startswith(source_folder.lstrip('/'))
+            else:
+                # Only notes directly in the folder
+                note_folder = '/'.join(note_path.split('/')[:-1])  # Remove filename
+                folder_matches = note_folder == source_folder.lstrip('/')
 
-                        # Remove leading slash if present
-                        if path_part.startswith('/'):
-                            path_part = path_part[1:]
+            if folder_matches and note_path.endswith('.md'):
+                # Read the actual note content
+                try:
+                    note_content = await read_note.fn(
+                        identifier=note_title,
+                        project=project
+                    )
 
-                        # Extract title if available
-                        title = filename[:-3]  # Remove .md
-                        if ' | ' in line:
-                            title_part = line.split(' | ')[1].strip()
-                            if title_part:
-                                title = title_part
+                    # Extract just the markdown content (remove any artifact formatting)
+                    content = note_content
+                    if content.startswith('# '):
+                        # Remove any auto-generated headers from view_note
+                        lines = content.split('\n')
+                        # Skip lines that look like auto-generated metadata
+                        filtered_lines = []
+                        skip_until_content = False
+                        for line in lines:
+                            if line.startswith('*Original path:*') or line.startswith('*Exported:*'):
+                                continue
+                            if line.strip() == '---' and not skip_until_content:
+                                continue
+                            if line.startswith('## Content') or line.startswith('This note has been exported'):
+                                skip_until_content = True
+                                continue
+                            if skip_until_content or not line.startswith('*Generated by'):
+                                filtered_lines.append(line)
 
-                        notes_data.append({
-                            'filename': filename,
-                            'path': path_part,
-                            'title': title,
-                            'folder': current_folder
-                        })
+                        content = '\n'.join(filtered_lines).strip()
+
+                    notes_data.append({
+                        'filename': f"{note_title}.md",
+                        'path': note_path,
+                        'title': note_title,
+                        'folder': source_folder,
+                        'content': content
+                    })
+
+                except Exception as e:
+                    logger.warning(f"Could not read content for note {note_title}: {e}")
+                    # Still include the note but with empty content
+                    notes_data.append({
+                        'filename': f"{note_title}.md",
+                        'path': note_path,
+                        'title': note_title,
+                        'folder': source_folder,
+                        'content': f"# {note_title}\n\n*Content could not be read*"
+                    })
 
     except Exception as e:
         logger.error(f"Error getting notes from folder {source_folder}: {e}")
@@ -235,7 +529,7 @@ async def _process_typora_export(
 
 
 def _create_typora_markdown(note_info: Dict[str, Any], include_frontmatter: bool, format_type: str) -> str:
-    """Create Typora-optimized markdown content."""
+    """Create Typora-optimized markdown content with actual note content."""
     lines = []
 
     # Add frontmatter if requested
@@ -250,71 +544,33 @@ def _create_typora_markdown(note_info: Dict[str, Any], include_frontmatter: bool
             ""
         ])
 
-    # Add title as H1
-    lines.extend([
-        f"# {note_info['title']}",
-        "",
-        f"*Original path: `{note_info['path']}`*",
-        f"*Exported: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*",
-        "",
-        "---",
-        ""
-    ])
+    # Add the actual note content
+    content = note_info.get('content', f"# {note_info['title']}\n\n*Content could not be loaded*")
 
-    # Add placeholder content optimized for Typora
-    lines.extend([
-        "## Content",
-        "",
-        "This note has been exported from Basic Memory for use with Typora.",
-        "",
-        "### Features Optimized for Typora",
-        "",
-        "- **Clean Typography**: Proper spacing and formatting",
-        "- **Heading Hierarchy**: Well-structured document outline",
-        "- **Code Blocks**: Syntax highlighting ready",
-        "- **Table Support**: Formatted for Typora's table editor",
-        "",
-        "### Sample Content",
-        "",
-        f"This is content from your note titled **{note_info['title']}**.",
-        "",
-        "#### Lists",
-        "",
-        "- Item 1",
-        "- Item 2",
-        "  - Nested item",
-        "  - Another nested item",
-        "- Item 3",
-        "",
-        "#### Code Example",
-        "",
-        "```python",
-        "# Sample Python code",
-        "def hello_world():",
-        "    print('Hello from Typora!')",
-        "    return 'success'",
-        "",
-        "hello_world()",
-        "```",
-        "",
-        "#### Table Example",
-        "",
-        "| Feature | Status | Notes |",
-        "|---------|--------|-------|",
-        "| Export | ✅ Complete | Ready for Typora |",
-        "| Formatting | ✅ Optimized | Typora-compatible |",
-        "| Links | ⚠️ Manual | May need adjustment |",
-        "",
-        "#### Blockquote",
-        "",
-        "> This is a blockquote example.",
-        "> It demonstrates Typora's blockquote rendering.",
-        "",
-        "---",
-        "",
-        "*Generated by Basic Memory Typora Export Tool*",
-        ""
-    ])
+    # Ensure content starts with a proper title if it doesn't already
+    if not content.strip().startswith('# '):
+        lines.extend([
+            f"# {note_info['title']}",
+            "",
+            f"*Original path: `{note_info['path']}`*",
+            f"*Exported from Basic Memory: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*",
+            "",
+            "---",
+            ""
+        ])
+
+    # Add the actual content
+    lines.append(content)
+
+    # Add export footer if the content doesn't already have it
+    if not content.strip().endswith("*Generated by Basic Memory*"):
+        lines.extend([
+            "",
+            "---",
+            "",
+            "*Generated by Basic Memory Typora Export Tool*",
+            ""
+        ])
 
     return "\n".join(lines)
 

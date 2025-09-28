@@ -9,15 +9,76 @@ import re
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 from datetime import datetime
+import markdown
 
 from loguru import logger
 
 from basic_memory.mcp.server import mcp
 from basic_memory.mcp.tools.list_directory import list_directory
+from basic_memory.mcp.tools.search import search_notes
+from basic_memory.mcp.tools.read_note import read_note
 
 
 @mcp.tool(
-    description="Export Basic Memory notes to HTML format.",
+    description="""Export Basic Memory notes to standalone HTML website with live Mermaid diagram rendering.
+
+This tool transforms Basic Memory knowledge base into a beautiful, self-contained HTML website
+with automatic Mermaid diagram rendering, perfect for sharing and offline viewing.
+
+EXPORT FEATURES:
+- Generates standalone HTML files with no external dependencies (except Mermaid.js CDN)
+- Automatically renders Mermaid diagrams live in the browser
+- Creates clean, responsive design with professional styling
+- Builds comprehensive index page with navigation and search
+- Preserves folder structure as organized web pages
+- Supports rich content including tables, code blocks, and images
+
+PARAMETERS:
+- export_path (str, REQUIRED): Filesystem path where HTML website will be created
+- source_folder (str, default="/"): Basic Memory folder to export (use "/" for all notes)
+- include_subfolders (bool, default=True): Include subfolders recursively
+- include_index (bool, default=True): Generate main index page with navigation
+- project (str, optional): Specific Basic Memory project to export from
+
+OUTPUT STRUCTURE:
+Creates a complete website with:
+- index.html: Main navigation page with folder structure and search
+- Individual HTML pages for each note with clean, readable formatting
+- Automatic Mermaid.js integration for live diagram rendering
+- Responsive CSS styling that works on all devices
+- Proper HTML structure with semantic markup
+
+MERMAID DIAGRAM SUPPORT:
+- Flowcharts, sequence diagrams, Gantt charts, mind maps, ER diagrams
+- Automatic CDN loading and initialization
+- Live rendering in browser without preprocessing
+- Preserved syntax highlighting and formatting
+
+CONTENT CONVERSION:
+- Markdown → Clean HTML with proper semantic structure
+- Mermaid code blocks → Interactive rendered diagrams
+- Tables → Properly formatted HTML tables
+- Code blocks → Syntax-highlighted HTML
+- Links → Functional HTML hyperlinks
+
+USAGE EXAMPLES:
+Basic website: export_html_notes("website/")
+Project docs: export_html_notes("docs/", source_folder="projects/alpha")
+Single folder: export_html_notes("export/", include_subfolders=False)
+No index: export_html_notes("pages/", include_index=False)
+
+WEBSITE FEATURES:
+- Self-contained (works offline after initial load)
+- Responsive design for mobile and desktop
+- Fast loading with minimal dependencies
+- Professional appearance suitable for sharing
+- Full-text search capability in index page
+
+RETURNS:
+Detailed export summary with file counts, website structure, and viewing instructions.
+
+NOTE: Requires internet connection for initial Mermaid.js loading, but works offline afterward.
+For completely offline use, download Mermaid files locally and modify the HTML templates.""",
 )
 async def export_html_notes(
     export_path: str,
@@ -91,50 +152,82 @@ async def _get_notes_from_folder(
     include_subfolders: bool,
     project: Optional[str]
 ) -> List[Dict[str, Any]]:
-    """Get all notes from the specified folder."""
+    """Get all notes from the specified folder with full content."""
     try:
-        # Use list_directory to get all files in the folder
-        depth = 10 if include_subfolders else 1
-
-        dir_result = await list_directory.fn(
-            dir_name=source_folder,
-            depth=depth,
+        # Use search_notes to find all notes in the folder
+        # We'll search for all notes and then filter by folder
+        search_query = "*"  # Match all notes
+        search_result = await search_notes.fn(
+            query=search_query,
+            page=1,
+            page_size=1000,  # Large page to get all notes
+            search_type="text",
             project=project
         )
 
-        # Parse the directory listing to extract note information
         notes_data = []
 
-        lines = dir_result.split('\n')
-        current_folder = source_folder
+        # Filter notes by folder and get their content
+        for note in search_result.get('results', []):
+            note_path = note.get('path', '')
+            note_title = note.get('title', '')
 
-        for line in lines:
-            if line.startswith('📄') and '.md' in line:
-                # Extract filename and path
-                parts = line.split()
-                if len(parts) >= 2:
-                    filename = parts[1].strip()
-                    if filename.endswith('.md'):
-                        # Get the full path from the line
-                        path_part = line.split(' | ')[0] if ' | ' in line else parts[-1]
+            # Check if note is in the requested folder
+            if include_subfolders:
+                # Include notes in subfolders
+                folder_matches = note_path.startswith(source_folder.lstrip('/'))
+            else:
+                # Only notes directly in the folder
+                note_folder = '/'.join(note_path.split('/')[:-1])  # Remove filename
+                folder_matches = note_folder == source_folder.lstrip('/')
 
-                        # Remove leading slash if present
-                        if path_part.startswith('/'):
-                            path_part = path_part[1:]
+            if folder_matches and note_path.endswith('.md'):
+                # Read the actual note content
+                try:
+                    note_content = await read_note.fn(
+                        identifier=note_title,
+                        project=project
+                    )
 
-                        # Extract title if available
-                        title = filename[:-3]  # Remove .md
-                        if ' | ' in line:
-                            title_part = line.split(' | ')[1].strip()
-                            if title_part:
-                                title = title_part
+                    # Extract just the markdown content (remove any artifact formatting)
+                    content = note_content
+                    if content.startswith('# '):
+                        # Remove any auto-generated headers from view_note
+                        lines = content.split('\n')
+                        # Skip lines that look like auto-generated metadata
+                        filtered_lines = []
+                        skip_until_content = False
+                        for line in lines:
+                            if line.startswith('*Original path:*') or line.startswith('*Exported:*'):
+                                continue
+                            if line.strip() == '---' and not skip_until_content:
+                                continue
+                            if line.startswith('## Content') or line.startswith('This note has been exported'):
+                                skip_until_content = True
+                                continue
+                            if skip_until_content or not line.startswith('*Generated by'):
+                                filtered_lines.append(line)
 
-                        notes_data.append({
-                            'filename': filename,
-                            'path': path_part,
-                            'title': title,
-                            'folder': current_folder
-                        })
+                        content = '\n'.join(filtered_lines).strip()
+
+                    notes_data.append({
+                        'filename': f"{note_title}.md",
+                        'path': note_path,
+                        'title': note_title,
+                        'folder': source_folder,
+                        'content': content
+                    })
+
+                except Exception as e:
+                    logger.warning(f"Could not read content for note {note_title}: {e}")
+                    # Still include the note but with empty content
+                    notes_data.append({
+                        'filename': f"{note_title}.md",
+                        'path': note_path,
+                        'title': note_title,
+                        'folder': source_folder,
+                        'content': f"# {note_title}\n\n*Content could not be read*"
+                    })
 
     except Exception as e:
         logger.error(f"Error getting notes from folder {source_folder}: {e}")
@@ -224,10 +317,23 @@ async def _process_html_export(
 
 
 def _create_html_content(note_info: Dict[str, Any]) -> str:
-    """Create HTML content for a note."""
-    # In a real implementation, this would convert markdown to HTML
-    # For now, we'll create a simple HTML structure
+    """Create HTML content for a note by converting markdown to HTML."""
+    # Get the actual markdown content
+    markdown_content = note_info.get('content', f"# {note_info['title']}\n\n*Content could not be loaded*")
 
+    # Convert markdown to HTML
+    html_content = markdown.markdown(
+        markdown_content,
+        extensions=['extra', 'codehilite', 'toc', 'meta', 'tables'],
+        extension_configs={
+            'codehilite': {
+                'linenums': False,
+                'guess_lang': True,
+            }
+        }
+    )
+
+    # Create the full HTML document
     html_template = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -247,41 +353,14 @@ def _create_html_content(note_info: Dict[str, Any]) -> str:
         </header>
 
         <div class="note-content">
-            <div class="placeholder-content">
-                <p><em>This is a placeholder. In a full implementation, the actual note content would be converted from Markdown to HTML here.</em></p>
-
-                <p><strong>Note Information:</strong></p>
-                <ul>
-                    <li><strong>Title:</strong> {note_info['title']}</li>
-                    <li><strong>Original Path:</strong> {note_info['path']}</li>
-                    <li><strong>Filename:</strong> {note_info['filename']}</li>
-                </ul>
-
-                <p><strong>Sample Content:</strong></p>
-                <p>This note contains information about {note_info['title'].lower()}.</p>
-
-                <h2>Section Example</h2>
-                <p>This is a sample section to demonstrate HTML structure.</p>
-
-                <ul>
-                    <li>List item 1</li>
-                    <li>List item 2</li>
-                    <li>List item 3</li>
-                </ul>
-
-                <blockquote>
-                    <p>This is a blockquote example.</p>
-                </blockquote>
-
-                <p><code>inline code example</code></p>
-
-                <pre><code>
-# Code block example
-def hello_world():
-    print("Hello, World!")
-                </code></pre>
-            </div>
+            {html_content}
         </div>
+
+        <footer class="note-footer">
+            <p class="export-info">
+                Exported from Basic Memory on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+            </p>
+        </footer>
     </article>
 </body>
 </html>"""

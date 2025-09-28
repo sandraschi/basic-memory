@@ -19,7 +19,44 @@ from basic_memory.mcp.tools.search import search_notes
 
 
 @mcp.tool(
-    description="Import a Joplin export into Basic Memory knowledge base.",
+    description="""Import Joplin knowledge bases into Basic Memory with full metadata preservation.
+
+This tool migrates Joplin exports into Basic Memory, converting Joplin's note organization
+into Basic Memory's entity-relationship model while preserving all metadata and structure.
+
+JOPLIN FEATURES SUPPORTED:
+- Markdown notes with full formatting support
+- Notebook hierarchy (folders become Basic Memory folders)
+- Tags and categorization systems
+- Note metadata (creation dates, modification dates, author info)
+- Rich content (tables, code blocks, lists, links)
+- Attachment references and media links
+
+PARAMETERS:
+- export_path (str, REQUIRED): Path to Joplin export directory (containing .md and .json files)
+- destination_folder (str, default="imported/joplin"): Basic Memory folder for imported content
+- preserve_structure (bool, default=True): Maintain Joplin notebook hierarchy
+- convert_links (bool, default=True): Convert Joplin links to Basic Memory entity references
+- skip_existing (bool, default=True): Skip notes that already exist in Basic Memory
+- project (str, optional): Target Basic Memory project
+
+JOPLIN EXPORT STRUCTURE:
+Joplin exports create pairs of files:
+- .md files: Note content in markdown format
+- .json files: Metadata including title, tags, notebook, timestamps
+- _resources/ folder: Attachments and media files
+
+USAGE EXAMPLES:
+Basic import: load_joplin_vault("/path/to/joplin-export")
+Custom folder: load_joplin_vault("/export", destination_folder="research/joplin-notes")
+Preserve links: load_joplin_vault("/export", convert_links=True)
+Incremental: load_joplin_vault("/export", skip_existing=True)
+
+RETURNS:
+Detailed import report with note counts, tag conversions, notebook mappings, and any issues.
+
+NOTE: Joplin's end-to-end encryption must be disabled before export. Large knowledge bases
+may take time to process. Use skip_existing=True for incremental synchronization.""",
 )
 async def load_joplin_vault(
     export_path: str,

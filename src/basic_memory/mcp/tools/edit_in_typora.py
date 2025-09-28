@@ -19,7 +19,55 @@ from basic_memory.mcp.tools.write_note import write_note
 
 
 @mcp.tool(
-    description="Export a note to Typora for editing, with import-back capability.",
+    description="""Export Basic Memory notes to Typora for professional rich-text editing with round-trip capability.
+
+This tool creates a bridge between Basic Memory's knowledge management and Typora's
+professional editing environment, enabling WYSIWYG editing while maintaining data integrity.
+
+EDITING WORKFLOW:
+1. Export note from Basic Memory to Typora workspace
+2. Edit with Typora's rich formatting features (tables, math, diagrams, etc.)
+3. Import edited content back to Basic Memory
+4. Preserve all metadata and relationships
+
+TYPORA FEATURES AVAILABLE:
+- Live preview with instant formatting feedback
+- Advanced table editing with visual controls
+- LaTeX math equation rendering and editing
+- Syntax-highlighted code blocks
+- Image insertion and resizing
+- Professional typography and spacing
+- Outline view for document structure
+- Word count and reading time estimates
+
+PARAMETERS:
+- note_identifier (str, REQUIRED): Note title or permalink to edit
+- workspace_path (str, optional): Custom workspace directory (defaults to "typora-workspace")
+- create_backup (bool, default=True): Create backup of original content before editing
+- project (str, optional): Specific Basic Memory project
+
+WORKSPACE MANAGEMENT:
+- Automatic workspace creation and organization
+- Backup preservation for safety
+- Clear file naming and version tracking
+- Temporary file cleanup options
+
+TYPORA INTEGRATION:
+- Automatic file opening in Typora (if installed)
+- Markdown format compatibility
+- Rich content preservation
+- Professional editing workflow
+
+USAGE EXAMPLES:
+Basic edit: edit_in_typora("Meeting Notes")
+Custom workspace: edit_in_typora("Project Plan", workspace_path="current-projects")
+No backup: edit_in_typora("Draft", create_backup=False)
+
+RETURNS:
+Detailed export summary with file paths, backup locations, and import instructions.
+
+NOTE: Requires Typora to be installed. This tool enables professional editing while
+maintaining Basic Memory's knowledge structure. Use import_from_typora() to complete the workflow.""",
 )
 async def edit_in_typora(
     note_identifier: str,
@@ -123,7 +171,53 @@ async def edit_in_typora(
 
 
 @mcp.tool(
-    description="Import edited note back from Typora workspace.",
+    description="""Import professionally edited content from Typora back into Basic Memory, completing the round-trip workflow.
+
+This tool completes the Typora editing workflow by importing enhanced content back into Basic Memory,
+preserving rich formatting while maintaining knowledge structure and relationships.
+
+IMPORT PROCESS:
+1. Locate edited file in Typora workspace
+2. Read enhanced markdown content with rich formatting
+3. Update original Basic Memory note with improvements
+4. Preserve all metadata, tags, and relationships
+5. Clean up workspace files (optional)
+
+CONTENT ENHANCEMENT PRESERVED:
+- Professional table formatting and structure
+- Mathematical equations and LaTeX expressions
+- Syntax-highlighted code blocks
+- Image formatting and captions
+- Advanced typography and spacing
+- Document structure improvements
+
+PARAMETERS:
+- note_identifier (str, REQUIRED): Note title or permalink to update
+- workspace_path (str, optional): Workspace directory containing edited file (defaults to "typora-workspace")
+- project (str, optional): Specific Basic Memory project
+
+WORKSPACE DETECTION:
+- Automatic workspace location detection
+- File matching by note identifier
+- Backup preservation for safety
+- Version conflict resolution
+
+CONTENT INTEGRITY:
+- Metadata preservation (creation date, author, etc.)
+- Relationship maintenance
+- Tag retention
+- Folder structure preservation
+
+USAGE EXAMPLES:
+Basic import: import_from_typora("Meeting Notes")
+Custom workspace: import_from_typora("Project Plan", workspace_path="current-projects")
+Specific project: import_from_typora("Research Notes", project="academic-work")
+
+RETURNS:
+Import summary with content changes, file locations, and validation results.
+
+NOTE: This tool assumes the note was previously exported using edit_in_typora().
+Ensure Typora has saved changes before importing. Backups are automatically created for safety.""",
 )
 async def import_from_typora(
     note_identifier: str,

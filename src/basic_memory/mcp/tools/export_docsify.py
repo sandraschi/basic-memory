@@ -37,7 +37,44 @@ def _sanitize_filename(filename: str) -> str:
 
 
 @mcp.tool(
-    description="Export Basic Memory notes to Docsify documentation site format.",
+    description="""Export Basic Memory notes to a complete, searchable Docsify documentation website.
+
+This tool transforms your knowledge base into a professional documentation site powered by Docsify.
+Docsify creates beautiful, fast-loading documentation from markdown files without requiring a build process.
+
+FEATURES:
+- Generates complete Docsify site structure with navigation
+- Creates actual markdown files with real note content (not placeholders)
+- Includes responsive design and built-in search functionality
+- Supports Mermaid diagram rendering in exported HTML
+- Handles Windows filename sanitization automatically
+
+PARAMETERS:
+- export_path (str, REQUIRED): Filesystem path where Docsify site will be created
+- source_folder (str, default="/"): Basic Memory folder to export (use "/" for all notes)
+- include_subfolders (bool, default=True): Include subfolders recursively
+- site_title (str, default="Knowledge Base"): Title for the documentation site
+- site_description (str, default="Documentation generated from Basic Memory"): Site description
+- project (str, optional): Specific project to export from (defaults to current active project)
+
+OUTPUT:
+Creates a complete Docsify site with:
+- index.html (main Docsify page with theme and configuration)
+- _sidebar.md (automatic navigation based on folder structure)
+- README.md (homepage with site description)
+- Individual markdown files for each note
+- .nojekyll (GitHub Pages compatibility)
+
+USAGE EXAMPLES:
+Basic export: export_docsify("docs-site/")
+Custom folder: export_docsify("project-docs/", source_folder="projects/alpha")
+Branded site: export_docsify("wiki/", site_title="Company Wiki", site_description="Internal docs")
+
+RETURNS:
+Detailed summary with file counts, setup instructions, and next steps for using the site.
+
+NOTE: Requires a web server to serve the generated site for full functionality (search, themes).
+For local development, you can use: python -m http.server 3000""",
 )
 async def export_docsify(
     export_path: str,

@@ -18,7 +18,40 @@ from basic_memory.schemas.memory import memory_url_path
 
 
 @mcp.tool(
-    description="Load and import an Obsidian canvas file into Basic Memory knowledge base.",
+    description="""Import Obsidian Canvas visual mind maps into Basic Memory as structured knowledge.
+
+This tool converts Obsidian's visual canvas files (.canvas) into Basic Memory entities and relationships,
+transforming visual thinking into structured, searchable knowledge.
+
+CANVAS FEATURES SUPPORTED:
+- Text nodes: Converted to individual notes with full content
+- File nodes: Create references to existing or external files
+- Link nodes: Establish relationships between entities
+- Group nodes: Organize content into folder structures
+- Edge connections: Become semantic relationships
+
+PARAMETERS:
+- canvas_path (str, REQUIRED): Filesystem path to .canvas JSON file
+- destination_folder (str, default="imported/canvases"): Basic Memory folder for imported content
+- create_missing_files (bool, default=False): Create placeholder notes for missing file references
+- project (str, optional): Target Basic Memory project
+
+NODE TYPE CONVERSION:
+- Text nodes → Markdown notes with canvas content
+- File nodes → Reference links to existing files
+- Link nodes → Entity relationship mappings
+- Groups → Folder organization structures
+
+USAGE EXAMPLES:
+Basic canvas: load_obsidian_canvas("mindmap.canvas")
+Custom folder: load_obsidian_canvas("project.canvas", destination_folder="projects/visual")
+With placeholders: load_obsidian_canvas("overview.canvas", create_missing_files=True)
+
+RETURNS:
+Import summary showing nodes processed, relationships created, and any issues encountered.
+
+NOTE: Canvas files are JSON-based visual layouts. This tool extracts the structured content
+and relationships, converting visual thinking into Basic Memory's entity-relationship model.""",
 )
 async def load_obsidian_canvas(
     canvas_path: str,

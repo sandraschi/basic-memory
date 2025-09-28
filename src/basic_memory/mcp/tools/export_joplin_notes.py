@@ -15,10 +15,61 @@ from loguru import logger
 
 from basic_memory.mcp.server import mcp
 from basic_memory.mcp.tools.list_directory import list_directory
+from basic_memory.mcp.tools.search import search_notes
+from basic_memory.mcp.tools.read_note import read_note
 
 
 @mcp.tool(
-    description="Export Basic Memory notes to Joplin format.",
+    description="""Export Basic Memory notes to Joplin-compatible format for cross-platform access.
+
+This tool converts Basic Memory knowledge base content into Joplin's native format,
+creating markdown files paired with JSON metadata that can be directly imported into Joplin.
+
+EXPORT FEATURES:
+- Generates Joplin-compatible markdown files with full formatting
+- Creates corresponding JSON metadata files with complete note information
+- Preserves folder structure as Joplin notebooks
+- Maintains tags, timestamps, and note relationships
+- Handles rich content including tables, lists, and links
+- Supports selective export by folder or project
+
+PARAMETERS:
+- export_path (str, REQUIRED): Filesystem path where Joplin export will be created
+- source_folder (str, default="/"): Basic Memory folder to export (use "/" for all notes)
+- include_subfolders (bool, default=True): Include subfolders recursively
+- create_notebooks (bool, default=True): Create notebook structure from folders
+- project (str, optional): Specific Basic Memory project to export from
+
+OUTPUT STRUCTURE:
+Creates a Joplin-compatible export with:
+- .md files: Note content in markdown format with Joplin extensions
+- .json files: Metadata including title, tags, notebook, timestamps, and IDs
+- Organized folder structure representing Joplin notebooks
+
+CONTENT CONVERSION:
+- Basic Memory markdown → Joplin-compatible markdown
+- Entity links → Standard markdown links (relationships may be lost)
+- Tags → Preserved in JSON metadata
+- Folder hierarchy → Joplin notebook structure
+- Rich formatting → Standard markdown formatting
+
+USAGE EXAMPLES:
+Basic export: export_joplin_notes("joplin-export/")
+Folder export: export_joplin_notes("export/", source_folder="projects/alpha")
+Flat export: export_joplin_notes("export/", create_notebooks=False)
+Project export: export_joplin_notes("export/", project="work-project")
+
+JOPLIN IMPORT PROCESS:
+1. Open Joplin application
+2. Go to File → Import → Joplin Export Directory
+3. Select the exported directory
+4. Choose import options and complete import
+
+RETURNS:
+Detailed export summary with file counts, notebook mappings, tag conversions, and import instructions.
+
+NOTE: Joplin's end-to-end encryption should be disabled before import. Some advanced
+Basic Memory features like entity relationships may not translate perfectly to Joplin.""",
 )
 async def export_joplin_notes(
     export_path: str,
@@ -99,50 +150,82 @@ async def _get_notes_from_folder(
     include_subfolders: bool,
     project: Optional[str]
 ) -> List[Dict[str, Any]]:
-    """Get all notes from the specified folder."""
+    """Get all notes from the specified folder with full content."""
     try:
-        # Use list_directory to get all files in the folder
-        depth = 10 if include_subfolders else 1
-
-        dir_result = await list_directory.fn(
-            dir_name=source_folder,
-            depth=depth,
+        # Use search_notes to find all notes in the folder
+        # We'll search for all notes and then filter by folder
+        search_query = "*"  # Match all notes
+        search_result = await search_notes.fn(
+            query=search_query,
+            page=1,
+            page_size=1000,  # Large page to get all notes
+            search_type="text",
             project=project
         )
 
-        # Parse the directory listing to extract note information
         notes_data = []
 
-        lines = dir_result.split('\n')
-        current_folder = source_folder
+        # Filter notes by folder and get their content
+        for note in search_result.get('results', []):
+            note_path = note.get('path', '')
+            note_title = note.get('title', '')
 
-        for line in lines:
-            if line.startswith('📄') and '.md' in line:
-                # Extract filename and path
-                parts = line.split()
-                if len(parts) >= 2:
-                    filename = parts[1].strip()
-                    if filename.endswith('.md'):
-                        # Get the full path from the line
-                        path_part = line.split(' | ')[0] if ' | ' in line else parts[-1]
+            # Check if note is in the requested folder
+            if include_subfolders:
+                # Include notes in subfolders
+                folder_matches = note_path.startswith(source_folder.lstrip('/'))
+            else:
+                # Only notes directly in the folder
+                note_folder = '/'.join(note_path.split('/')[:-1])  # Remove filename
+                folder_matches = note_folder == source_folder.lstrip('/')
 
-                        # Remove leading slash if present
-                        if path_part.startswith('/'):
-                            path_part = path_part[1:]
+            if folder_matches and note_path.endswith('.md'):
+                # Read the actual note content
+                try:
+                    note_content = await read_note.fn(
+                        identifier=note_title,
+                        project=project
+                    )
 
-                        # Extract title if available
-                        title = filename[:-3]  # Remove .md
-                        if ' | ' in line:
-                            title_part = line.split(' | ')[1].strip()
-                            if title_part:
-                                title = title_part
+                    # Extract just the markdown content (remove any artifact formatting)
+                    content = note_content
+                    if content.startswith('# '):
+                        # Remove any auto-generated headers from view_note
+                        lines = content.split('\n')
+                        # Skip lines that look like auto-generated metadata
+                        filtered_lines = []
+                        skip_until_content = False
+                        for line in lines:
+                            if line.startswith('*Original path:*') or line.startswith('*Exported:*'):
+                                continue
+                            if line.strip() == '---' and not skip_until_content:
+                                continue
+                            if line.startswith('## Content') or line.startswith('This note has been exported'):
+                                skip_until_content = True
+                                continue
+                            if skip_until_content or not line.startswith('*Generated by'):
+                                filtered_lines.append(line)
 
-                        notes_data.append({
-                            'filename': filename,
-                            'path': path_part,
-                            'title': title,
-                            'folder': current_folder
-                        })
+                        content = '\n'.join(filtered_lines).strip()
+
+                    notes_data.append({
+                        'filename': f"{note_title}.md",
+                        'path': note_path,
+                        'title': note_title,
+                        'folder': source_folder,
+                        'content': content
+                    })
+
+                except Exception as e:
+                    logger.warning(f"Could not read content for note {note_title}: {e}")
+                    # Still include the note but with empty content
+                    notes_data.append({
+                        'filename': f"{note_title}.md",
+                        'path': note_path,
+                        'title': note_title,
+                        'folder': source_folder,
+                        'content': f"# {note_title}\n\n*Content could not be read*"
+                    })
 
     except Exception as e:
         logger.error(f"Error getting notes from folder {source_folder}: {e}")
@@ -200,9 +283,8 @@ async def _process_joplin_export(
             # Create Joplin metadata
             metadata = _create_joplin_metadata(note_info, notebook_name)
 
-            # For now, we'll create placeholder content
-            # In a real implementation, you'd read the actual note content
-            content = _create_placeholder_content(note_info)
+            # Get the actual note content
+            content = note_info.get('content', f"# {note_info['title']}\n\n*Content could not be loaded*")
 
             # Write files
             with open(md_path, 'w', encoding='utf-8') as f:
@@ -300,30 +382,6 @@ def _create_joplin_metadata(note_info: Dict[str, Any], notebook_name: str) -> Di
     }
 
     return metadata
-
-
-def _create_placeholder_content(note_info: Dict[str, Any]) -> str:
-    """Create placeholder content for the note."""
-    # In a real implementation, this would read the actual note content
-    # For now, we'll create a placeholder
-    content = f"""# {note_info['title']}
-
-*This note was exported from Basic Memory.*
-*Original path: {note_info['path']}*
-*Export timestamp: {datetime.now().isoformat()}*
-
-## Content
-
-[Note: This is a placeholder. In a full implementation, the actual note content would be included here.]
-
-## Metadata
-
-- **Title:** {note_info['title']}
-- **Original Path:** {note_info['path']}
-- **Exported:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-"""
-
-    return content
 
 
 def _generate_export_report(

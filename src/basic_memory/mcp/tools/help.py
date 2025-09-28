@@ -6,7 +6,43 @@ from basic_memory.mcp.server import mcp
 
 
 @mcp.tool(
-    description="Get comprehensive help and system information for Basic Memory",
+    description="""Comprehensive help system for Basic Memory with multiple knowledge levels.
+
+This tool provides contextual assistance and documentation for Basic Memory features,
+organized by knowledge levels from basic usage to advanced technical details.
+
+LEVELS:
+- basic: Quick start guide and essential commands
+- intermediate: Detailed tool descriptions and workflows
+- advanced: Technical architecture and implementation details
+- expert: Development troubleshooting and system internals
+
+TOPICS:
+- semantic-net: Knowledge graph and entity relationships
+- claude: AI integration patterns and best practices
+- tools: Complete command reference with examples
+- import: Data migration from external applications
+- export: Content publishing and sharing options
+- typora: Rich text editing workflows
+- obsidian: Obsidian vault integration guide
+- joplin: Joplin export compatibility
+- notion: Notion HTML/Markdown import strategies
+- evernote: Evernote ENEX file processing
+- mermaid: Diagram creation and rendering
+
+PARAMETERS:
+- level (str, default="basic"): Help detail level (basic/intermediate/advanced/expert)
+- topic (str, optional): Specific topic to focus on (see list above)
+
+USAGE EXAMPLES:
+Basic overview: help()
+Tool reference: help("intermediate")
+Semantic networks: help("advanced", "semantic-net")
+Claude integration: help("intermediate", "claude")
+Troubleshooting: help("expert")
+
+RETURNS:
+Contextual help content formatted for easy reading with examples and guidance.""",
 )
 async def help(level: str = "basic", topic: Optional[str] = None) -> str:
     """Get help and information about Basic Memory and its capabilities.
