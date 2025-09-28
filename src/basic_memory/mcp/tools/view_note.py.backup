@@ -1,4 +1,4 @@
-﻿"""View note tool for Basic Memory MCP server."""
+"""View note tool for Basic Memory MCP server."""
 
 from textwrap import dedent
 from typing import Optional
@@ -7,7 +7,6 @@ from loguru import logger
 
 from basic_memory.mcp.server import mcp
 from basic_memory.mcp.tools.read_note import read_note
-from basic_memory.mcp.tools.utils import sanitize_unicode_content
 
 
 @mcp.tool(

@@ -129,7 +129,7 @@ async def call_get(
         if isinstance(response_data, dict) and "detail" in response_data:
             error_message = response_data["detail"]
         else:
-            error_message = get_error_message(status_code, url, "GET")
+            error_message = get_error_message(status_code, url, "PUT")
 
         # Log at appropriate level based on status code
         if 400 <= status_code < 500:
@@ -565,35 +565,14 @@ async def wait_for_migration_or_return_status(
             project_status = sync_status_tracker.get_project_status(project_name)
             if project_status and project_status.status.value == "failed":
                 error_msg = project_status.error or "Unknown sync error"
-                return f"[ERROR] Sync failed for project '{project_name}': {error_msg}"
+                return f"❌ Sync failed for project '{project_name}': {error_msg}"
             elif project_status:
-                return f"[STATUS] Project '{project_name}' is still syncing: {project_status.message}"
+                return f"🔄 Project '{project_name}' is still syncing: {project_status.message}"
             else:
-                return f"[WARNING] Project '{project_name}' status unknown"
+                return f"⚠️ Project '{project_name}' status unknown"
         else:
             # Fall back to global summary for legacy calls
             return sync_status_tracker.get_summary()
     except Exception:  # pragma: no cover
         # If there's any error, assume ready
         return None
-
-
-def sanitize_unicode_content(content: str) -> str:
-    """
-    Sanitize Unicode characters that cause JSON parsing issues in Claude Desktop.
-    """
-    replacements = {
-        '✅': '[OK]', '❌': '[ERROR]', '⚠️': '[WARNING]', '🚨': '[ALERT]',
-        '🎯': '[TARGET]', '🔧': '[FIX]', '⚡': '[FAST]', '🚀': '[LAUNCH]', '🎉': '[SUCCESS]',
-        '📁': '[FOLDER]', '📝': '[NOTE]', '📋': '[LIST]',
-        'ÐYZî': '[TARGET]', 'ÐY"õ': '[FIX]', 'ÐY"<': '[INFO]', 'ÐYs?': '[STATUS]',
-        'ÐY"^': '[METRIC]', 's­': '[NEXT]', 'o.': '[OK]', '?': '[CHECK]'
-    }
-    sanitized = content
-    for unicode_char, ascii_replacement in replacements.items():
-        sanitized = sanitized.replace(unicode_char, ascii_replacement)
-    try:
-        sanitized.encode('utf-8').decode('utf-8')
-    except UnicodeError:
-        sanitized = ''.join(char if ord(char) < 128 or char.isspace() else '?' for char in sanitized)
-    return sanitized

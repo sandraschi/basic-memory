@@ -22,7 +22,7 @@ from dateparser import parse
 
 from pydantic import BaseModel, BeforeValidator, Field, model_validator
 
-from basic_memory.utils import generate_permalink
+from basic_memory.utils import generate_permalink, sanitize_filename
 
 
 def to_snake_case(name: str) -> str:
@@ -188,7 +188,8 @@ class Entity(BaseModel):
     def file_path(self):
         """Get the file path for this entity based on its permalink."""
         if self.content_type == "text/markdown":
-            return f"{self.folder}/{self.title}.md" if self.folder else f"{self.title}.md"
+            sanitized_title = sanitize_filename(self.title)
+            return f"{self.folder}/{sanitized_title}.md" if self.folder else f"{sanitized_title}.md"
         else:
             return f"{self.folder}/{self.title}" if self.folder else self.title
 

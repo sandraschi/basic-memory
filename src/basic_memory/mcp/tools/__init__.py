@@ -15,6 +15,12 @@ from basic_memory.mcp.tools.view_note import view_note
 from basic_memory.mcp.tools.write_note import write_note
 from basic_memory.mcp.tools.search import search_notes
 from basic_memory.mcp.tools.canvas import canvas
+from basic_memory.mcp.tools.export_joplin_notes import export_joplin_notes
+from basic_memory.mcp.tools.load_canvas import load_obsidian_canvas
+from basic_memory.mcp.tools.load_joplin_vault import load_joplin_vault
+from basic_memory.mcp.tools.load_obsidian_vault import load_obsidian_vault
+from basic_memory.mcp.tools.search_joplin_vault import search_joplin_vault
+from basic_memory.mcp.tools.search_obsidian_vault import search_obsidian_vault
 from basic_memory.mcp.tools.list_directory import list_directory
 from basic_memory.mcp.tools.edit_note import edit_note
 from basic_memory.mcp.tools.move_note import move_note
@@ -32,6 +38,12 @@ __all__ = [
     "build_context",
     "canvas",
     "create_memory_project",
+    "export_joplin_notes",
+    "load_joplin_vault",
+    "load_obsidian_canvas",
+    "load_obsidian_vault",
+    "search_joplin_vault",
+    "search_obsidian_vault",
     "delete_note",
     "delete_project",
     "edit_note",

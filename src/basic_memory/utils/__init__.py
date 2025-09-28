@@ -13,8 +13,8 @@ from .file_safety import FileSafety, FileSafetyError, file_safety
 # Import setup_logging from the logging_utils module
 from basic_memory.logging_utils import setup_logging
 
-# Import generate_permalink from the permalink_utils module
-from basic_memory.permalink_utils import generate_permalink
+# Import generate_permalink and sanitize_filename from the permalink_utils module
+from basic_memory.permalink_utils import generate_permalink, sanitize_filename
 
 # Import parse_tags from tag_utils
 from basic_memory.tag_utils import parse_tags
@@ -30,6 +30,7 @@ __all__ = [
     'PathLike',
     'setup_logging',
     'generate_permalink',
+    'sanitize_filename',
     'parse_tags',
     'validate_project_path',
 ]

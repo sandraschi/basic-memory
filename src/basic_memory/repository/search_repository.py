@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from basic_memory import db
 from basic_memory.models.search import CREATE_SEARCH_INDEX
 from basic_memory.schemas.search import SearchItemType
+from basic_memory.utils import sanitize_filename
 
 
 @dataclass
@@ -391,6 +392,13 @@ class SearchRepository:
             title_text = self._prepare_search_term(title.strip(), is_prefix=False)
             params["title_text"] = title_text
             conditions.append("title MATCH :title_text")
+
+            # Also search for sanitized version of the title (for markdown files)
+            sanitized_title = sanitize_filename(title.strip())
+            if sanitized_title != title.strip():  # Only add if different
+                sanitized_title_text = self._prepare_search_term(sanitized_title, is_prefix=False)
+                params["sanitized_title_text"] = sanitized_title_text
+                conditions.append("title MATCH :sanitized_title_text")
 
         # Handle permalink exact search
         if permalink:

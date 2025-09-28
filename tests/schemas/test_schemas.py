@@ -20,7 +20,7 @@ def test_entity_project_name():
     """Test creating EntityIn with minimal required fields."""
     data = {"title": "Test Entity", "folder": "test", "entity_type": "knowledge"}
     entity = Entity.model_validate(data)
-    assert entity.file_path == "test/Test Entity.md"
+    assert entity.file_path == "test/Test_Entity.md"
     assert entity.permalink == "test/test-entity"
     assert entity.entity_type == "knowledge"
 
@@ -29,7 +29,7 @@ def test_entity_project_id():
     """Test creating EntityIn with minimal required fields."""
     data = {"project": 2, "title": "Test Entity", "folder": "test", "entity_type": "knowledge"}
     entity = Entity.model_validate(data)
-    assert entity.file_path == "test/Test Entity.md"
+    assert entity.file_path == "test/Test_Entity.md"
     assert entity.permalink == "test/test-entity"
     assert entity.entity_type == "knowledge"
 
