@@ -1,5 +1,56 @@
 # CHANGELOG
 
+## v0.14.4 (2025-01-29)
+
+### Features & Improvements
+
+- **Enhanced Documentation & README Updates**
+  - Updated README to better highlight enhanced fork capabilities
+  - Improved installation instructions and feature descriptions
+  - Added comprehensive tool documentation and usage examples
+  - Enhanced project overview with current feature set
+
+- **Export System Refinements**
+  - **Typora Integration Improvements**: Enhanced export functionality and documentation
+  - **Docsify Export Fixes**: Resolved file generation issues and improved structure
+  - **Cross-Platform Compatibility**: Better Windows compatibility for export tools
+  - **Template System**: Refined export templates and styling options
+
+- **Import System Enhancements**
+  - **Obsidian Import**: Improved link conversion and structure preservation
+  - **Joplin Import/Export**: Enhanced metadata handling and format conversion
+  - **Filename Sanitization**: Robust handling of special characters and edge cases
+  - **Cross-Platform Support**: Consistent behavior across operating systems
+
+- **File Operations & Performance**
+  - **Safer File Operations**: Further refinements to filtering and performance
+  - **Memory Optimization**: Reduced memory usage during large file operations
+  - **Error Handling**: Improved error messages and recovery mechanisms
+  - **Cross-Platform Paths**: Enhanced path handling for Windows, macOS, and Linux
+
+### Bug Fixes
+
+- **Export Tools**: Fixed various export-related issues and improved reliability
+- **Import Tools**: Resolved parsing and conversion issues across different formats
+- **File Operations**: Enhanced error handling for edge cases and special characters
+- **Documentation**: Fixed broken links and improved clarity
+
+### Technical Improvements
+
+- **Code Quality**: Enhanced type hints and documentation across modules
+- **Performance**: Optimized file processing and memory usage
+- **Testing**: Expanded test coverage for new features and edge cases
+- **CI/CD**: Improved automated testing and deployment pipelines
+
+### Migration Guide
+
+This release includes refinements and bug fixes that enhance the stability and usability of the enhanced Basic Memory fork. All changes are backward compatible:
+
+- **Existing Users**: No manual migration required - all existing projects continue to work
+- **Export Users**: Enhanced export tools provide better reliability and more options
+- **Import Users**: Improved import tools handle more edge cases and special characters
+- **All Users**: Better error messages and enhanced cross-platform compatibility
+
 ## v0.14.3 (2025-09-28)
 
 ### Features

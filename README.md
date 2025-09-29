@@ -93,7 +93,7 @@ npx -y @smithery/cli install @basicmachines-co/basic-memory --client claude
 #### Enhanced Installation (This Fork)
 To install this enhanced version with Mermaid diagrams and extended tools:
 
-**Manual Installation:**
+**Manual Installation (Latest Enhanced Version):**
 Edit `~/Library/Application Support/Claude/claude_desktop_config.json` and add:
 
 ```json
@@ -102,7 +102,7 @@ Edit `~/Library/Application Support/Claude/claude_desktop_config.json` and add:
     "basic-memory-enhanced": {
       "command": "uvx",
       "args": [
-        "git+https://github.com/sandraschi/basic-memory.git@feature/safer-file-operations",
+        "git+https://github.com/sandraschi/basic-memory.git@main",
         "mcp"
       ]
     }
@@ -147,7 +147,7 @@ This installs and configures the enhanced Basic Memory without requiring manual 
 
 Once you have installed Basic Memory revisit this page for the 1-click installer for Cursor:
 
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=basic-memory-enhanced&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJnaXQraHR0cHM6Ly9naXRodWIuY29tL3NhbmRyYXNjaGkvYmFzaWMtbWVtb3J5LmdpdEBmZWF0dXJlL3NhZmVyLWZpbGUtb3BlcmF0aW9ucyIsIm1jcCJdfQ==)
+[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=basic-memory-enhanced&config=eyJjb21tYW5kIjoidXZ4IiwiYXJncyI6WyJnaXQraHR0cHM6Ly9naXRodWIuY29tL3NhbmRyYXNjaGkvYmFzaWMtbWVtb3J5LmdpdEBtYWluIiwibWNwIl19)
 
 
 ### Glama.ai
