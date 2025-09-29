@@ -18,8 +18,13 @@ from basic_memory.mcp.tools.canvas import canvas
 from basic_memory.mcp.tools.export_docsify import export_docsify
 from basic_memory.mcp.tools.export_html_notes import export_html_notes
 from basic_memory.mcp.tools.export_joplin_notes import export_joplin_notes
-from basic_memory.mcp.tools.edit_in_typora import edit_in_typora, import_from_typora
-from basic_memory.mcp.tools.export_typora import export_typora
+from basic_memory.mcp.tools.edit_in_notepadpp import edit_in_notepadpp, import_from_notepadpp
+from basic_memory.mcp.tools.export_pandoc import export_pandoc
+from basic_memory.mcp.tools.make_pdf_book import make_pdf_book
+from basic_memory.mcp.tools.export_to_archive import export_to_archive
+from basic_memory.mcp.tools.import_from_archive import import_from_archive
+from basic_memory.mcp.tools.knowledge_operations import knowledge_operations
+from basic_memory.mcp.tools.research_orchestrator import research_orchestrator
 from basic_memory.mcp.tools.load_canvas import load_obsidian_canvas
 from basic_memory.mcp.tools.load_joplin_vault import load_joplin_vault
 from basic_memory.mcp.tools.load_evernote_export import load_evernote_export
@@ -35,6 +40,7 @@ from basic_memory.mcp.tools.help import help
 from basic_memory.mcp.tools.move_note import move_note
 from basic_memory.mcp.tools.status import status
 from basic_memory.mcp.tools.sync_status import sync_status
+from basic_memory.mcp.tools.typora_control import typora_control
 from basic_memory.mcp.tools.project_management import (
     list_memory_projects,
     switch_project,
@@ -48,12 +54,17 @@ __all__ = [
     "build_context",
     "canvas",
     "create_memory_project",
-    "edit_in_typora",
+    "edit_in_notepadpp",
     "export_docsify",
     "export_html_notes",
     "export_joplin_notes",
-    "export_typora",
-    "import_from_typora",
+    "export_pandoc",
+    "export_to_archive",
+    "import_from_archive",
+    "import_from_notepadpp",
+    "knowledge_operations",
+    "make_pdf_book",
+    "research_orchestrator",
     "load_evernote_export",
     "load_joplin_vault",
     "load_notion_export",
@@ -79,6 +90,7 @@ __all__ = [
     "status",
     "switch_project",
     "sync_status",
+    "typora_control",
     "view_note",
     "write_note",
 ]

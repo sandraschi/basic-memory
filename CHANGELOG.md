@@ -11,6 +11,46 @@
   - Comprehensive documentation and examples in `docs/mermaid-diagrams.md`
   - Example templates in `docs/examples/mermaid/`
 
+- **Research Orchestrator - AI-Guided Research & Knowledge Building 🧠**
+  - `research_orchestrator`: Comprehensive research planning and workflow tool
+    - **Research Planning**: Generate detailed roadmaps with questions, sources, methodology
+    - **Methodology Guidance**: Proven research approaches (technical, business, academic)
+    - **Question Generation**: Focused research questions organized by category
+    - **Note Blueprinting**: Optimal note structures for different research types
+    - **Step-by-Step Workflow**: 6-phase research execution guide
+    - **Quality Framework**: Source evaluation, credibility assessment, confidence levels
+    - **Integration Ready**: Works with existing knowledge operations and note creation
+
+- **Complete System Archive & Migration Tools 📦**
+  - `export_to_archive`: Create complete backup archives for migration to new PCs
+    - Includes SQLite database with all knowledge and relationships
+    - All project directories with markdown files
+    - Global configuration and project settings
+    - Compressed ZIP format for efficient storage
+    - **Advanced Filtering Now Available:**
+      - Project filtering: `include_projects` or `exclude_projects`
+      - Tag filtering: `exclude_tags` (skip "obsolete", "test", "draft")
+      - Date filtering: `since_date` ("30d", "6m", "1y", or ISO dates)
+      - Database-level filtering with semantic link cleanup
+  - `import_from_archive`: Restore complete Basic Memory system from backup
+    - Validates archive integrity before restoration
+    - Optional backup of existing data
+    - Multiple restore modes: overwrite, merge, skip existing
+    - Dry-run mode for previewing changes
+    - Safe rollback capabilities
+
+- **Pandoc Export Engine (FREE & Open Source)**
+  - `export_pandoc`: New universal document converter supporting 40+ formats
+  - `make_pdf_book`: Create professional PDF books with title pages, TOC, and chapters 📖
+    - Tag-based filtering: Filter notes by tags (e.g., `tag_filter="standards"`)
+    - Folder-based selection: Choose notes from specific folders
+    - Combined filtering: Use both folder and tag filters together
+  - CLI-based batch processing for PDF, HTML, DOCX, LaTeX, EPUB, and more
+  - Custom templates, table of contents, syntax highlighting
+  - Book-quality PDF generation with proper formatting
+  - Completely automated export (no GUI interactions required)
+  - **Replaces Typora export functionality** - FREE alternative to paid Typora software
+
 - **Enhanced Export Capabilities**
   - `export_html_notes`: Improved with Mermaid diagram rendering
   - `export_docsify`: New tool for creating documentation sites
@@ -18,10 +58,16 @@
   - `export_notion_compatible`: Export to Notion-compatible markdown format
   - `export_evernote_compatible`: Export to Evernote ENEX XML format for seamless import
 
-- **Typora Integration Tools**
-  - `edit_in_typora`: Export notes for rich editing in Typora
-  - `import_from_typora`: Import edited content back into Basic Memory
-  - Round-trip workflow for leveraging Typora's advanced features
+- **Removed Features**
+  - `export_typora`: Removed due to $15 licensing cost and lack of CLI capabilities
+  - Use `export_pandoc` for FREE, automated document export instead
+
+- **FREE Notepad++ Editing Tools (Complete Replacement for Typora)**
+  - `edit_in_notepadpp`: Export notes for professional editing in Notepad++ ✅ FREE & Open Source
+  - `import_from_notepadpp`: Import edited content back into Basic Memory ✅ FREE & Open Source
+  - Round-trip workflow with syntax highlighting and markdown plugins
+  - **Removed:** All Typora tools due to $15 licensing cost - Notepad++ is the FREE alternative
+  - **Note:** For document export, use the FREE `export_pandoc` tool (40+ formats supported)
   - Workspace management for organized editing sessions
 
 - **Expanded Import Ecosystem**

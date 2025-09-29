@@ -18,10 +18,12 @@ enable any compatible LLM to read and write to your local knowledge base.
 **This enhanced fork adds:**
 - 🛡️ **Safer File Operations** - Prevents choking on node_modules, build artifacts, and large directories through intelligent filtering
 - 🎨 **Mermaid diagram support** - Visual diagrams that render in HTML exports
-- ✏️ **Typora integration** - Rich editing with round-trip workflow
-- 📚 **Extended import/export** - Joplin, Docsify, and enhanced HTML tools
+- 🐧 **Pandoc export engine** - FREE CLI-based export to PDF, Word, HTML, and 40+ formats
+- 📚 **Extended import/export** - Joplin, Docsify, Notion, Evernote, and enhanced HTML tools
 - 🔍 **Enhanced search** - Better handling of special characters
-- 📊 **Multiple export formats** - PDF, Word, HTML, and documentation sites
+- 📊 **Professional document generation** - Templates, TOC, syntax highlighting
+- 📖 **PDF book creation** - Complete books with title pages and chapters
+- ✏️ **FREE Notepad++ editing** - Professional markdown editing with syntax highlighting
 
 - Website: https://basicmemory.com
 - Company: https://basicmachines.co
@@ -290,12 +292,35 @@ Then export to HTML to see the rendered diagram:
 await export_html_notes.fn(export_path="/path/to/html-export")
 ```
 
-### Integration with Typora
+### Export Options
 
-Since Basic Memory integrates with Typora, you can:
-- Edit diagrams visually in Typora's live preview
-- Use Typora's extensive export options (PDF, Word, HTML, etc.)
-- Leverage Typora's diagram editing features
+#### 🐧 **Recommended: Pandoc (FREE & Open Source)**
+For professional document export, use the `export_pandoc` tool which provides:
+- 40+ output formats (PDF, HTML, DOCX, LaTeX, EPUB, etc.)
+- Batch processing of all notes
+- Custom templates and styling
+- Table of contents and syntax highlighting
+- Completely automated CLI processing
+
+```bash
+# Export all notes as PDF
+await export_pandoc.fn(export_path="/exports", format_type="pdf")
+
+# Export as Word document with TOC
+await export_pandoc.fn(export_path="/exports", format_type="docx", toc=True)
+```
+
+#### ✏️ **FREE Markdown Editing with Notepad++**
+✅ **Completely FREE & Open Source Alternative**
+
+Basic Memory provides Notepad++ integration for professional markdown editing:
+- Round-trip editing workflow (export → edit in Notepad++ → import back)
+- Syntax highlighting for markdown
+- Plugin ecosystem (MarkdownViewer, PreviewHTML, etc.)
+- Lightweight and fast code editor
+- Professional editing features
+
+**Note:** Notepad++ is completely free and open source - no licensing costs!
 
 See the [Mermaid Diagrams Guide](docs/mermaid-diagrams.md) for detailed documentation and examples.
 
@@ -593,15 +618,28 @@ search_notion_vault(path, query, file_type) - Search Notion exports externally
 search_evernote_vault(path, query, file_type) - Search Evernote ENEX/HTML exports
 
 # Export Tools
+export_pandoc(path, format, folder) - Export notes to multiple formats (PDF, HTML, DOCX, etc.) using Pandoc
+make_pdf_book(title, folder, tag_filter) - Create professional PDF books with title page and TOC from notes 📖
+
+# Archive Tools
+export_to_archive(path, include_projects, exclude_projects, exclude_tags, since_date) - Create complete backup archive of entire Basic Memory system 📦
+import_from_archive(path, restore_mode, backup_existing, dry_run) - Restore complete Basic Memory system from backup archive 📦
+
+# Knowledge Operations
+knowledge_operations(operation, filters, action, dry_run) - Swiss Army Knife for bulk operations, tag management, and content validation 🛠️
+
+# Research Tools
+research_orchestrator(operation, topic, topic_type, research_type) - AI-guided research planning and workflow orchestration 🧠
 export_html_notes(path, folder) - Export notes to HTML with Mermaid support
 export_joplin_notes(path, folder) - Export notes to Joplin format
 export_notion_compatible(path, query, folder_filter) - Export notes to Notion-compatible format
 export_evernote_compatible(path, query, folder_filter) - Export notes to Evernote ENEX format
-export_docsify(path, folder) - Export notes to Docsify documentation site
+export_docsify_enhanced(path, folder, enable_pagination, enable_toc, enable_theme_toggle) - Export notes to enhanced Docsify documentation site with advanced plugins 🚀
 
-# Rich Editing Tools
-edit_in_typora(note_id, workspace) - Export note for Typora editing
-import_from_typora(note_id, workspace) - Import edited note from Typora
+# Rich Editing Tools (FREE & Open Source)
+edit_in_notepadpp(note_id, workspace) - Export note for Notepad++ editing ✅ FREE & Open Source
+import_from_notepadpp(note_id, workspace) - Import edited note from Notepad++ ✅ FREE & Open Source
+typora_control(operation, format, output_path, text) - Swiss Army Knife for Typora control via json_rpc plugin 🛠️
 
 # Project Management
 list_memory_projects() - View all configured projects

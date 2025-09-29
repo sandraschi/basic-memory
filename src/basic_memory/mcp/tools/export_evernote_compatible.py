@@ -127,17 +127,32 @@ async def export_evernote_compatible(
     output_dir = Path(output_path)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Search for entities to export
+    # Search for notes to export
     if query:
-        # Use search to find matching entities
-        search_response = await search_notes.fn(
-            query=query,
-            types=["entity"],
-            project=project
+        # Make HTTP call to search API to find matching notes
+        from basic_memory.mcp.async_client import client
+        from basic_memory.mcp.project_session import get_active_project
+        from basic_memory.schemas.search import SearchQuery
+        from basic_memory.mcp.tools.utils import call_post
+
+        active_project = get_active_project(project)
+        project_url = active_project.project_url
+
+        # Create search query
+        search_query = SearchQuery(text=query)
+
+        search_response_raw = await call_post(
+            client,
+            f"{project_url}/search/",
+            json=search_query.model_dump(),
+            params={"page": 1, "page_size": 1000},
         )
 
+        from basic_memory.schemas.search import SearchResponse
+        search_response = SearchResponse.model_validate(search_response_raw.json())
+
         if not search_response or not hasattr(search_response, 'results'):
-            return f"No entities found matching query: {query}"
+            return f"No notes found matching query: {query}"
 
         entities = search_response.results
     else:

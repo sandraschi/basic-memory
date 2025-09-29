@@ -147,7 +147,16 @@ def parse_frontmatter(content: str) -> Dict[str, Any]:
             return frontmatter
 
         except yaml.YAMLError as e:
-            raise ParseError(f"Invalid YAML in frontmatter: {e}")
+            # Try to provide more helpful error message
+            error_msg = f"Invalid YAML in frontmatter: {e}"
+            if "mapping values are not allowed" in str(e):
+                error_msg += " (check for missing quotes around string values)"
+            elif "scanning an alias" in str(e):
+                error_msg += " (YAML aliases &/* may be malformed)"
+            logger.warning(f"YAML parse error in content: {error_msg}")
+            # Instead of failing completely, return empty frontmatter to allow processing
+            logger.info("Treating malformed frontmatter as empty to allow file processing")
+            return {}
 
     except Exception as e:  # pragma: no cover
         if not isinstance(e, ParseError):

@@ -19,6 +19,23 @@ from basic_memory.services import EntityService, FileService
 from basic_memory.services.search_service import SearchService
 from basic_memory.services.sync_status_service import sync_status_tracker, SyncStatus
 
+
+def normalize_file_path(path: str) -> str:
+    """Normalize file path for consistent database storage.
+
+    Ensures paths use forward slashes and are properly resolved.
+    This helps prevent duplicate path issues due to different path formats.
+    """
+    # Convert backslashes to forward slashes for consistency
+    normalized = path.replace('\\', '/')
+    # Remove any duplicate slashes
+    while '//' in normalized:
+        normalized = normalized.replace('//', '/')
+    # Ensure it doesn't start with /
+    if normalized.startswith('/'):
+        normalized = normalized[1:]
+    return normalized
+
 # Common directories to ignore during file scanning and sync
 IGNORE_PATTERNS = {
     # Node.js
@@ -380,11 +397,12 @@ class SyncService:
             content_type = self.file_service.content_type(path)
 
             file_path = Path(path)
+            normalized_path = normalize_file_path(path)
             try:
                 entity = await self.entity_repository.add(
                     Entity(
                         entity_type="file",
-                        file_path=path,
+                        file_path=normalized_path,
                         checksum=checksum,
                         title=file_path.name,
                         created_at=created,
@@ -423,13 +441,34 @@ class SyncService:
                 logger.error(f"Entity not found for existing file, path={path}")
                 raise ValueError(f"Entity not found for existing file: {path}")
 
-            updated = await self.entity_repository.update(
-                entity.id, {"file_path": path, "checksum": checksum}
-            )
+            normalized_path = normalize_file_path(path)
+            try:
+                updated = await self.entity_repository.update(
+                    entity.id, {"file_path": normalized_path, "checksum": checksum}
+                )
 
-            if updated is None:  # pragma: no cover
-                logger.error(f"Failed to update entity, entity_id={entity.id}, path={path}")
-                raise ValueError(f"Failed to update entity with ID {entity.id}")
+                if updated is None:  # pragma: no cover
+                    logger.error(f"Failed to update entity, entity_id={entity.id}, path={path}")
+                    raise ValueError(f"Failed to update entity with ID {entity.id}")
+            except IntegrityError as e:
+                if "UNIQUE constraint failed: entity.file_path" in str(e):
+                    logger.warning(
+                        f"File path conflict during update: {path} already exists. "
+                        f"This may indicate duplicate files or path normalization issues. "
+                        f"Entity ID: {entity.id}"
+                    )
+                    # Try to find the conflicting entity and log details
+                    conflicting_entity = await self.entity_repository.get_by_file_path(path)
+                    if conflicting_entity:
+                        logger.warning(
+                            f"Conflicting entity: ID={conflicting_entity.id}, "
+                            f"type={conflicting_entity.entity_type}, "
+                            f"project={conflicting_entity.project_id}"
+                        )
+                    # Don't raise - let the sync continue but log the issue
+                    return entity, checksum
+                else:
+                    raise
 
             return updated, checksum
 
@@ -469,15 +508,16 @@ class SyncService:
 
         entity = await self.entity_repository.get_by_file_path(old_path)
         if entity:
-            # Update file_path in all cases
-            updates = {"file_path": new_path}
+            # Update file_path in all cases (normalized)
+            normalized_new_path = normalize_file_path(new_path)
+            updates = {"file_path": normalized_new_path}
 
             # If configured, also update permalink to match new path
             if self.app_config.update_permalinks_on_move and self.file_service.is_markdown(
-                new_path
+                normalized_new_path
             ):
                 # generate new permalink value
-                new_permalink = await self.entity_service.resolve_permalink(new_path)
+                new_permalink = await self.entity_service.resolve_permalink(normalized_new_path)
 
                 # write to file and get new checksum
                 new_checksum = await self.file_service.update_frontmatter(
@@ -493,16 +533,28 @@ class SyncService:
                     f"new_checksum={new_checksum}"
                 )
 
-            updated = await self.entity_repository.update(entity.id, updates)
+            try:
+                updated = await self.entity_repository.update(entity.id, updates)
 
-            if updated is None:  # pragma: no cover
-                logger.error(
-                    "Failed to update entity path"
-                    f"entity_id={entity.id}"
-                    f"old_path={old_path}"
-                    f"new_path={new_path}"
-                )
-                raise ValueError(f"Failed to update entity path for ID {entity.id}")
+                if updated is None:  # pragma: no cover
+                    logger.error(
+                        "Failed to update entity path"
+                        f"entity_id={entity.id}"
+                        f"old_path={old_path}"
+                        f"new_path={new_path}"
+                    )
+                    raise ValueError(f"Failed to update entity path for ID {entity.id}")
+            except IntegrityError as e:
+                if "UNIQUE constraint failed: entity.file_path" in str(e):
+                    logger.warning(
+                        f"File path conflict during move: {new_path} already exists. "
+                        f"Cannot move {old_path} to {new_path}. "
+                        f"Entity ID: {entity.id}"
+                    )
+                    # Don't update the entity - leave it as-is
+                    return
+                else:
+                    raise
 
             logger.debug(
                 "Entity path updated"

@@ -154,23 +154,34 @@ async def _get_notes_from_folder(
 ) -> List[Dict[str, Any]]:
     """Get all notes from the specified folder with full content."""
     try:
-        # Use search_notes to find all notes in the folder
-        # We'll search for all notes and then filter by folder
-        search_query = "*"  # Match all notes
-        search_result = await search_notes.fn(
-            query=search_query,
-            page=1,
-            page_size=1000,  # Large page to get all notes
-            search_type="text",
-            project=project
+        # Make HTTP call to search API to find all notes in the folder
+        from basic_memory.mcp.async_client import client
+        from basic_memory.mcp.project_session import get_active_project
+        from basic_memory.schemas.search import SearchQuery
+        from basic_memory.mcp.tools.utils import call_post
+
+        active_project = get_active_project(project)
+        project_url = active_project.project_url
+
+        # Create search query for all notes
+        search_query = SearchQuery(text="*")
+
+        search_response = await call_post(
+            client,
+            f"{project_url}/search/",
+            json=search_query.model_dump(),
+            params={"page": 1, "page_size": 1000},  # Large page to get all notes
         )
+
+        from basic_memory.schemas.search import SearchResponse
+        search_result = SearchResponse.model_validate(search_response.json())
 
         notes_data = []
 
         # Filter notes by folder and get their content
-        for note in search_result.get('results', []):
-            note_path = note.get('path', '')
-            note_title = note.get('title', '')
+        for note in search_result.results:
+            note_path = note.file_path
+            note_title = note.title
 
             # Check if note is in the requested folder
             if include_subfolders:

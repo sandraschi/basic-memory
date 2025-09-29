@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 from basic_memory.mcp.server import mcp
-from basic_memory.mcp.tools.sync_status import sync_status as sync_status_tool
+from basic_memory.services.sync_status_service import sync_status_tracker
 
 
 @mcp.tool(
@@ -103,7 +103,7 @@ async def _get_basic_status() -> str:
     status_lines = ["# Basic Memory Status - Basic Overview", ""]
 
     # Get sync status
-    sync_info = await sync_status_tool()
+    sync_info = sync_status_tracker.get_summary()
     status_lines.append(sync_info)
 
     # Add quick system info
@@ -132,7 +132,7 @@ async def _get_intermediate_status() -> str:
     status_lines = ["# Basic Memory Status - Intermediate", ""]
 
     # Basic sync status
-    sync_info = await sync_status_tool()
+    sync_info = sync_status_tracker.get_summary()
     status_lines.extend([sync_info, "", "---", ""])
 
     # Tool inventory
@@ -189,7 +189,7 @@ async def _get_advanced_status() -> str:
     status_lines = ["# Basic Memory Status - Advanced", ""]
 
     # Basic sync status
-    sync_info = await sync_status_tool()
+    sync_info = sync_status_tracker.get_summary()
     status_lines.extend([sync_info, "", "---", ""])
 
     # Performance metrics
@@ -260,7 +260,7 @@ async def _get_diagnostic_status() -> str:
     status_lines = ["# Basic Memory Status - Diagnostic", ""]
 
     # Basic sync status
-    sync_info = await sync_status_tool()
+    sync_info = sync_status_tracker.get_summary()
     status_lines.extend([sync_info, "", "---", ""])
 
     # Environment variables
@@ -356,7 +356,7 @@ async def _get_focused_status(focus: str, level: str) -> str:
     focus = focus.lower()
 
     if focus == "sync":
-        return await sync_status_tool()
+        return sync_status_tracker.get_summary()
     elif focus == "tools":
         if level == "basic":
             try:
