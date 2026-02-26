@@ -11,7 +11,7 @@ from loguru import logger
 from sqlalchemy.exc import IntegrityError
 
 from basic_memory.config import BasicMemoryConfig
-from basic_memory.file_utils import has_frontmatter
+from basic_memory.file_utils import has_frontmatter, parse_frontmatter
 from basic_memory.markdown import EntityParser
 from basic_memory.models import Entity
 from basic_memory.repository import EntityRepository, RelationRepository
@@ -305,8 +305,92 @@ class SyncService:
             return entity, checksum
 
         except Exception as e:  # pragma: no cover
-            logger.error(f"Failed to sync file: path={path}, error={str(e)}")
+            error_msg = str(e)
+            error_type = type(e).__name__
+
+            # Provide more specific error messages for common issues
+            if "mapping values are not allowed" in error_msg:
+                logger.warning(f"Malformed YAML frontmatter in {path}: {error_msg}")
+                logger.info(f"File {path} will be skipped due to invalid YAML frontmatter. Fix the YAML syntax to include this file in sync.")
+            elif "scanning an alias" in error_msg or "alias" in error_msg.lower():
+                logger.warning(f"Invalid YAML alias in {path}: {error_msg}")
+                logger.info(f"File {path} will be skipped due to malformed YAML aliases. Check for invalid &/* syntax.")
+            elif "yaml" in error_msg.lower() or "yamlload" in error_type.lower():
+                logger.warning(f"YAML parsing error in {path}: {error_msg}")
+                logger.info(f"File {path} will be skipped due to YAML syntax error. The file may still be processed with empty frontmatter.")
+            else:
+                logger.error(f"Failed to sync file: path={path}, error_type={error_type}, error={error_msg}")
+
+            # Return None to indicate sync failure, but don't crash the entire process
             return None, None
+
+    async def validate_file_frontmatter(self, path: str) -> Tuple[bool, Optional[str]]:
+        """Validate YAML frontmatter in a markdown file.
+
+        Args:
+            path: Path to the file to validate
+
+        Returns:
+            Tuple of (is_valid, error_message)
+        """
+        try:
+            if not self.file_service.is_markdown(path):
+                return True, None
+
+            absolute_path = self.entity_parser.base_path / path
+            if not absolute_path.exists():
+                return False, f"File does not exist: {path}"
+
+            content = absolute_path.read_text(encoding="utf-8")
+
+            if not has_frontmatter(content):
+                return True, None  # No frontmatter to validate
+
+            # Try to parse frontmatter - parse_frontmatter handles YAML errors gracefully
+            frontmatter_data = parse_frontmatter(content)
+
+            # Additional validation could go here (e.g., required fields, data types)
+
+            return True, None
+
+        except Exception as e:
+            error_msg = f"Failed to validate frontmatter in {path}: {str(e)}"
+            logger.warning(error_msg)
+            return False, error_msg
+
+    async def validate_project_files(self, paths: Optional[Set[str]] = None) -> Dict[str, str]:
+        """Validate frontmatter in multiple files.
+
+        Args:
+            paths: Specific paths to validate, or None for all project files
+
+        Returns:
+            Dict mapping file paths to error messages for invalid files
+        """
+        invalid_files = {}
+
+        if paths is None:
+            # Get all markdown files in project
+            all_files = []
+            # Get project path from entity parser's base path
+            project_path = self.entity_parser.base_path
+            for root, dirs, files in os.walk(project_path):
+                # Skip ignored directories
+                dirs[:] = [d for d in dirs if d not in IGNORE_PATTERNS]
+
+                for file in files:
+                    if file.endswith('.md'):
+                        rel_path = os.path.relpath(os.path.join(root, file), project_path)
+                        rel_path = normalize_file_path(rel_path)
+                        all_files.append(rel_path)
+            paths = set(all_files)
+
+        for path in paths:
+            is_valid, error_msg = await self.validate_file_frontmatter(path)
+            if not is_valid and error_msg:
+                invalid_files[path] = error_msg
+
+        return invalid_files
 
     async def sync_markdown_file(self, path: str, new: bool = True) -> Tuple[Optional[Entity], str]:
         """Sync a markdown file with full processing.

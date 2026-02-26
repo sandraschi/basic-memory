@@ -71,8 +71,28 @@ brew install basic-memory
 
 You can view shared context via files in `~/basic-memory` (default directory location).
 
-### Alternative Installation via Smithery
+## 🚀 Installation
 
+### Prerequisites
+- [uv](https://docs.astral.sh/uv/) installed (RECOMMENDED)
+- Python 3.12+
+
+### 📦 Quick Start
+Run immediately via `uvx`:
+```bash
+uvx basic-memory
+```
+
+### 🎯 Claude Desktop Integration
+Add to your `claude_desktop_config.json`:
+```json
+"mcpServers": {
+  "basic-memory": {
+    "command": "uv",
+    "args": ["--directory", "D:/Dev/repos/basic-memory", "run", "basic-memory"]
+  }
+}
+```
 ## Enhanced Version with Mermaid Diagrams & Extended Tools
 
 This fork includes significant enhancements including:
@@ -81,68 +101,72 @@ This fork includes significant enhancements including:
 - **Extended import/export** - Joplin, Docsify, and enhanced HTML export tools
 - **Enhanced search** - Better handling of special characters and filename sanitization
 
-### Installation Options
+## 🚀 Installation
 
-#### Standard Installation (Original)
-You can use [Smithery](https://smithery.ai/server/@basicmachines-co/basic-memory) to automatically configure the original Basic Memory for Claude Desktop:
+### Prerequisites
+- [uv](https://docs.astral.sh/uv/) installed (RECOMMENDED)
+- Python 3.12+
 
+### 📦 Quick Start
+Run immediately via `uvx`:
 ```bash
-npx -y @smithery/cli install @basicmachines-co/basic-memory --client claude
+uvx basic-memory
 ```
 
-#### Enhanced Installation (This Fork)
-To install this enhanced version with Mermaid diagrams and extended tools:
-
-**Manual Installation (Latest Enhanced Version):**
-Edit `~/Library/Application Support/Claude/claude_desktop_config.json` and add:
-
+### 🎯 Claude Desktop Integration
+Add to your `claude_desktop_config.json`:
 ```json
-{
-  "mcpServers": {
-    "basic-memory-enhanced": {
-      "command": "uvx",
-      "args": [
-        "git+https://github.com/sandraschi/basic-memory.git@feature/safer-file-operations",
-        "mcp"
-      ]
-    }
+"mcpServers": {
+  "basic-memory": {
+    "command": "uv",
+    "args": ["--directory", "D:/Dev/repos/basic-memory", "run", "basic-memory"]
   }
 }
 ```
+## 🚀 Installation
 
-**Alternative - Local Installation:**
+### Prerequisites
+- [uv](https://docs.astral.sh/uv/) installed (RECOMMENDED)
+- Python 3.12+
+
+### 📦 Quick Start
+Run immediately via `uvx`:
 ```bash
-# Clone this enhanced repository
-git clone https://github.com/sandraschi/basic-memory.git
-cd basic-memory
+uvx basic-memory
+```
 
-# Install locally
-pip install -e .
-
-# Configure Claude Desktop to use local installation
-# Edit ~/Library/Application Support/Claude/claude_desktop_config.json
-{
-  "mcpServers": {
-    "basic-memory-enhanced": {
-      "command": "python",
-      "args": [
-        "-m",
-        "basic_memory.mcp.server"
-      ]
-    }
+### 🎯 Claude Desktop Integration
+Add to your `claude_desktop_config.json`:
+```json
+"mcpServers": {
+  "basic-memory": {
+    "command": "uv",
+    "args": ["--directory", "D:/Dev/repos/basic-memory", "run", "basic-memory"]
   }
 }
 ```
+## 🚀 Installation
 
-**Smithery Installation:**
-For Smithery users, you can install from this enhanced fork:
+### Prerequisites
+- [uv](https://docs.astral.sh/uv/) installed (RECOMMENDED)
+- Python 3.12+
 
+### 📦 Quick Start
+Run immediately via `uvx`:
 ```bash
-npx -y @smithery/cli install @sandraschi/basic-memory --client claude
+uvx basic-memory
 ```
 
-This installs and configures the enhanced Basic Memory without requiring manual edits to the Claude Desktop configuration file.
-
+### 🎯 Claude Desktop Integration
+Add to your `claude_desktop_config.json`:
+```json
+"mcpServers": {
+  "basic-memory": {
+    "command": "uv",
+    "args": ["--directory", "D:/Dev/repos/basic-memory", "run", "basic-memory"]
+  }
+}
+```
 ### Add to Cursor
 
 Once you have installed Basic Memory revisit this page for the 1-click installer for Cursor:
@@ -493,36 +517,28 @@ For one-click installation, click one of the install buttons below...
 
 You can use Basic Memory with VS Code to easily retrieve and store information while coding. Click the installation buttons above for one-click setup, or follow the manual installation instructions below.
 
-### Manual Installation
+## 🚀 Installation
 
-Add the following JSON block to your User Settings (JSON) file in VS Code. You can do this by pressing `Ctrl + Shift + P` and typing `Preferences: Open User Settings (JSON)`.
+### Prerequisites
+- [uv](https://docs.astral.sh/uv/) installed (RECOMMENDED)
+- Python 3.12+
 
+### 📦 Quick Start
+Run immediately via `uvx`:
+```bash
+uvx basic-memory
+```
+
+### 🎯 Claude Desktop Integration
+Add to your `claude_desktop_config.json`:
 ```json
-{
-  "mcp": {
-    "servers": {
-      "basic-memory": {
-        "command": "uvx",
-        "args": ["basic-memory", "mcp"]
-      }
-    }
+"mcpServers": {
+  "basic-memory": {
+    "command": "uv",
+    "args": ["--directory", "D:/Dev/repos/basic-memory", "run", "basic-memory"]
   }
 }
 ```
-
-Optionally, you can add it to a file called `.vscode/mcp.json` in your workspace. This will allow you to share the configuration with others.
-
-```json
-{
-  "servers": {
-    "basic-memory": {
-      "command": "uvx",
-      "args": ["basic-memory", "mcp"]
-    }
-  }
-}
-```
-
 ## Using with Claude Desktop
 
 Basic Memory is built using the MCP (Model Context Protocol) and works with the Claude desktop app (https://claude.ai/):
@@ -673,8 +689,28 @@ See the [Documentation](https://memory.basicmachines.co/) for more info, includi
 - [Managing multiple Projects](https://memory.basicmachines.co/docs/cli-reference#project)
 - [Importing data from OpenAI/Claude Projects](https://memory.basicmachines.co/docs/cli-reference#import)
 
-## Installation Options
+## 🚀 Installation
 
+### Prerequisites
+- [uv](https://docs.astral.sh/uv/) installed (RECOMMENDED)
+- Python 3.12+
+
+### 📦 Quick Start
+Run immediately via `uvx`:
+```bash
+uvx basic-memory
+```
+
+### 🎯 Claude Desktop Integration
+Add to your `claude_desktop_config.json`:
+```json
+"mcpServers": {
+  "basic-memory": {
+    "command": "uv",
+    "args": ["--directory", "D:/Dev/repos/basic-memory", "run", "basic-memory"]
+  }
+}
+```
 ### Stable Release
 ```bash
 pip install basic-memory

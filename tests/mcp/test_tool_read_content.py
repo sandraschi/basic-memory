@@ -26,7 +26,7 @@ class TestReadContentSecurityValidation:
         ]
 
         for attack_path in attack_paths:
-            result = await read_content.fn(path=attack_path)
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=attack_path)
 
             assert isinstance(result, dict)
             assert result["type"] == "error"
@@ -48,7 +48,7 @@ class TestReadContentSecurityValidation:
         ]
 
         for attack_path in attack_paths:
-            result = await read_content.fn(path=attack_path)
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=attack_path)
 
             assert isinstance(result, dict)
             assert result["type"] == "error"
@@ -72,7 +72,7 @@ class TestReadContentSecurityValidation:
         ]
 
         for attack_path in attack_paths:
-            result = await read_content.fn(path=attack_path)
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=attack_path)
 
             assert isinstance(result, dict)
             assert result["type"] == "error"
@@ -95,7 +95,7 @@ class TestReadContentSecurityValidation:
         ]
 
         for attack_path in attack_paths:
-            result = await read_content.fn(path=attack_path)
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=attack_path)
 
             assert isinstance(result, dict)
             assert result["type"] == "error"
@@ -116,7 +116,7 @@ class TestReadContentSecurityValidation:
         ]
 
         for attack_path in attack_paths:
-            result = await read_content.fn(path=attack_path)
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=attack_path)
 
             assert isinstance(result, dict)
             assert result["type"] == "error"
@@ -146,7 +146,7 @@ class TestReadContentSecurityValidation:
                 mock_response.text = f"# Content for {safe_path}\nThis is test content."
                 mock_call_get.return_value = mock_response
                 
-                result = await read_content.fn(path=safe_path)
+                result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=safe_path)
 
                 # Should succeed (not a security error)
                 assert isinstance(result, dict)
@@ -164,7 +164,7 @@ class TestReadContentSecurityValidation:
         ]
 
         for attack_path in attack_paths:
-            result = await read_content.fn(path=attack_path)
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=attack_path)
 
             assert isinstance(result, dict)
             assert result["type"] == "error"
@@ -174,7 +174,7 @@ class TestReadContentSecurityValidation:
     async def test_read_content_security_logging(self, client, caplog):
         """Test that security violations are properly logged."""
         # Attempt path traversal attack
-        result = await read_content.fn(path="../../../etc/passwd")
+        result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path="../../../etc/passwd")
 
         assert result["type"] == "error"
         assert "paths must stay within project boundaries" in result["error"]
@@ -196,7 +196,7 @@ class TestReadContentSecurityValidation:
             mock_response.text = "# Root content"
             mock_call_get.return_value = mock_response
             
-            result = await read_content.fn(path="")
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path="")
 
             assert isinstance(result, dict)
             # Empty path should not trigger security error (it's handled as project root)
@@ -223,7 +223,7 @@ class TestReadContentSecurityValidation:
                 mock_response.text = f"# Content for {safe_path}"
                 mock_call_get.return_value = mock_response
                 
-                result = await read_content.fn(path=safe_path)
+                result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=safe_path)
 
                 assert isinstance(result, dict)
                 # Should NOT contain security error message
@@ -237,7 +237,7 @@ class TestReadContentFunctionality:
     async def test_read_content_text_file_success(self, client):
         """Test reading a text file works correctly with security validation."""
         # First create a file to read
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Test Document",
             folder="docs",
             content="# Test Document\nThis is test content for reading.",
@@ -253,7 +253,7 @@ class TestReadContentFunctionality:
             mock_response.text = "# Test Document\nThis is test content for reading."
             mock_call_get.return_value = mock_response
             
-            result = await read_content.fn(path="docs/test-document.md")
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path="docs/test-document.md")
 
             assert isinstance(result, dict)
             assert result["type"] == "text"
@@ -289,7 +289,7 @@ class TestReadContentFunctionality:
                 with patch("basic_memory.mcp.tools.read_content.optimize_image") as mock_optimize:
                     mock_optimize.return_value = b"optimized_image_data"
                     
-                    result = await read_content.fn(path="assets/safe-image.png")
+                    result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path="assets/safe-image.png")
 
                     assert isinstance(result, dict)
                     assert result["type"] == "image"
@@ -317,7 +317,7 @@ class TestReadContentFunctionality:
                 mock_response.text = "Project-specific content"
                 mock_call_get.return_value = mock_response
                 
-                result = await read_content.fn(
+                result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(
                     path="notes/project-file.txt",
                     project="specific-project"
                 )
@@ -335,7 +335,7 @@ class TestReadContentFunctionality:
             
             # This should pass security validation but fail on API call
             try:
-                result = await read_content.fn(path="docs/nonexistent-file.md")
+                result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path="docs/nonexistent-file.md")
                 # If no exception is raised, check the result format
                 assert isinstance(result, dict)
             except Exception as e:
@@ -357,7 +357,7 @@ class TestReadContentFunctionality:
             mock_response.content = binary_data
             mock_call_get.return_value = mock_response
             
-            result = await read_content.fn(path="files/safe-binary.bin")
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path="files/safe-binary.bin")
 
             assert isinstance(result, dict)
             assert result["type"] == "document"
@@ -380,7 +380,7 @@ class TestReadContentEdgeCases:
         ]
 
         for attack_path in unicode_attacks:
-            result = await read_content.fn(path=attack_path)
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=attack_path)
 
             assert isinstance(result, dict)
             assert result["type"] == "error"
@@ -398,7 +398,7 @@ class TestReadContentEdgeCases:
 
         for attack_path in encoded_attacks:
             try:
-                result = await read_content.fn(path=attack_path)
+                result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=attack_path)
                 
                 # These may or may not be blocked depending on URL decoding,
                 # but should not cause security issues
@@ -422,7 +422,7 @@ class TestReadContentEdgeCases:
         ]
 
         for attack_path in null_byte_attacks:
-            result = await read_content.fn(path=attack_path)
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=attack_path)
 
             assert isinstance(result, dict)
             # Should be blocked by security validation or cause an error
@@ -436,7 +436,7 @@ class TestReadContentEdgeCases:
         # Create a very long path traversal attack
         long_attack = "../" * 1000 + "etc/passwd"
         
-        result = await read_content.fn(path=long_attack)
+        result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=long_attack)
 
         assert isinstance(result, dict)
         assert result["type"] == "error"
@@ -454,7 +454,7 @@ class TestReadContentEdgeCases:
         ]
 
         for attack_path in case_attacks:
-            result = await read_content.fn(path=attack_path)
+            result = await (read_content.fn if hasattr(read_content, "fn") else read_content)(path=attack_path)
 
             assert isinstance(result, dict)
             assert result["type"] == "error"

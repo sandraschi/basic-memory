@@ -21,7 +21,7 @@ async def test_sync_status_completed():
     mock_tracker.get_all_projects.return_value = {}
 
     with patch("basic_memory.services.sync_status_service.sync_status_tracker", mock_tracker):
-        result = await sync_status.fn()
+        result = await (sync_status.fn if hasattr(sync_status, "fn") else sync_status)()
 
     assert "Basic Memory Sync Status" in result
     assert "System Ready**: ✅ Yes" in result
@@ -57,7 +57,7 @@ async def test_sync_status_in_progress():
     mock_tracker.get_all_projects.return_value = {"project1": project1, "project2": project2}
 
     with patch("basic_memory.services.sync_status_service.sync_status_tracker", mock_tracker):
-        result = await sync_status.fn()
+        result = await (sync_status.fn if hasattr(sync_status, "fn") else sync_status)()
 
     assert "Basic Memory Sync Status" in result
     assert "System Ready**: 🔄 Processing" in result
@@ -87,7 +87,7 @@ async def test_sync_status_failed():
     mock_tracker.get_all_projects.return_value = {"project1": failed_project}
 
     with patch("basic_memory.services.sync_status_service.sync_status_tracker", mock_tracker):
-        result = await sync_status.fn()
+        result = await (sync_status.fn if hasattr(sync_status, "fn") else sync_status)()
 
     assert "Basic Memory Sync Status" in result
     assert "System Ready**: 🔄 Processing" in result
@@ -107,7 +107,7 @@ async def test_sync_status_idle():
     mock_tracker.get_all_projects.return_value = {}
 
     with patch("basic_memory.services.sync_status_service.sync_status_tracker", mock_tracker):
-        result = await sync_status.fn()
+        result = await (sync_status.fn if hasattr(sync_status, "fn") else sync_status)()
 
     assert "Basic Memory Sync Status" in result
     assert "System Ready**: ✅ Yes" in result
@@ -133,7 +133,7 @@ async def test_sync_status_with_project():
     mock_tracker.get_project_status.return_value = project_status
 
     with patch("basic_memory.services.sync_status_service.sync_status_tracker", mock_tracker):
-        result = await sync_status.fn(project="test-project")
+        result = await (sync_status.fn if hasattr(sync_status, "fn") else sync_status)(project="test-project")
 
     # The function should use the original logic for project-specific queries
     # But since we changed the implementation, let's just verify it doesn't crash
@@ -150,7 +150,7 @@ async def test_sync_status_pending():
     mock_tracker.get_all_projects.return_value = {}
 
     with patch("basic_memory.services.sync_status_service.sync_status_tracker", mock_tracker):
-        result = await sync_status.fn()
+        result = await (sync_status.fn if hasattr(sync_status, "fn") else sync_status)()
 
     assert "Basic Memory Sync Status" in result
     assert "Sync operations pending" in result
@@ -165,6 +165,6 @@ async def test_sync_status_error_handling():
         mock_tracker.is_ready = True
         mock_tracker.get_summary.side_effect = Exception("Test error")
 
-        result = await sync_status.fn()
+        result = await (sync_status.fn if hasattr(sync_status, "fn") else sync_status)()
 
     assert "Unable to check sync status**: Test error" in result

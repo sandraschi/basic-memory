@@ -5,7 +5,7 @@ from basic_memory.mcp.tools.search import search_notes
 
 async def test_search():
     try:
-        result = await search_notes.fn(query='*', page=1, page_size=5)
+        result = await (search_notes.fn if hasattr(search_notes, "fn") else search_notes)(query='*', page=1, page_size=5)
         print(f'Type of result: {type(result)}')
         print(f'Has results attr: {hasattr(result, "results")}')
         if hasattr(result, 'results'):

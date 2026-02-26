@@ -209,6 +209,75 @@ async def run_sync(verbose: bool = False):
 
 
 @app.command()
+def validate(
+    fix: bool = typer.Option(
+        False,
+        "--fix",
+        help="Attempt to fix simple YAML issues automatically.",
+    ),
+) -> None:
+    """Validate YAML frontmatter in markdown files before syncing.
+
+    Checks for malformed YAML that could break sync operations and provides
+    detailed error messages to help fix issues.
+    """
+    config = get_project_config()
+
+    try:
+        typer.echo(f"Validating project: {config.project}")
+        typer.echo(f"Project path: {config.home}")
+
+        async def run_validation():
+            app_config = ConfigManager().config
+            _, session_maker = await db.get_or_create_db(
+                db_path=app_config.database_path, db_type=db.DatabaseType.FILESYSTEM
+            )
+            project_repository = ProjectRepository(session_maker)
+            project = await project_repository.get_by_name(config.project)
+            if not project:
+                raise Exception(f"Project '{config.project}' not found")
+
+            sync_service = await get_sync_service(project)
+
+            # Validate all files
+            typer.echo("Scanning files for YAML frontmatter issues...")
+            invalid_files = await sync_service.validate_project_files()
+
+            if not invalid_files:
+                typer.secho("All files passed validation!", fg=typer.colors.GREEN)
+                return
+
+            typer.secho(f"Found {len(invalid_files)} files with YAML issues:", fg=typer.colors.RED)
+            typer.echo()
+
+            for file_path, error in invalid_files.items():
+                typer.secho(f"- {file_path}", fg=typer.colors.YELLOW)
+                typer.echo(f"  Error: {error}")
+                typer.echo()
+
+            typer.echo("Tips to fix YAML issues:")
+            typer.echo("   - Check for missing quotes around string values")
+            typer.echo("   - Ensure proper YAML indentation (spaces, not tabs)")
+            typer.echo("   - Fix malformed YAML aliases (&/*)")
+            typer.echo("   - Validate YAML syntax with an online YAML validator")
+            typer.echo()
+            typer.echo("These files will be skipped during sync but won't break the process.")
+
+        asyncio.run(run_validation())
+
+    except Exception as e:  # pragma: no cover
+        if not isinstance(e, typer.Exit):
+            logger.exception(
+                "Validate command failed",
+                f"project={config.project},"
+                f"error={str(e)},"
+                f"error_type={type(e).__name__},"
+                f"directory={str(config.home)}",
+            )
+            typer.secho(f"Error: {str(e)}", fg=typer.colors.RED)
+
+
+@app.command()
 def sync(
     verbose: bool = typer.Option(
         False,

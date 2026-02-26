@@ -27,6 +27,9 @@ def generate_permalink(file_path: Union[Path, str, Any]) -> str:
     # Convert Path to string if needed
     path_str = str(file_path)
 
+    # Normalize path separators to forward slashes early
+    path_str = path_str.replace("\\", "/")
+
     # Remove extension
     base = os.path.splitext(path_str)[0]
 

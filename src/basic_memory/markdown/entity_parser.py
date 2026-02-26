@@ -12,6 +12,7 @@ import dateparser
 import frontmatter
 from markdown_it import MarkdownIt
 
+from basic_memory.file_utils import parse_frontmatter, remove_frontmatter
 from basic_memory.markdown.plugins import observation_plugin, relation_plugin
 from basic_memory.markdown.schemas import (
     EntityFrontmatter,
@@ -111,23 +112,28 @@ class EntityParser:
         return self.base_path / path
 
     async def parse_file_content(self, absolute_path, file_content):
-        post = frontmatter.loads(file_content)
+        # Use resilient parsing that handles malformed YAML gracefully
+        metadata = parse_frontmatter(file_content)
+        content_without_frontmatter = remove_frontmatter(file_content)
+
         # Extract file stat info
         file_stats = absolute_path.stat()
-        metadata = post.metadata
-        metadata["title"] = post.metadata.get("title", absolute_path.stem)
-        metadata["type"] = post.metadata.get("type", "note")
-        tags = parse_tags(post.metadata.get("tags", []))  # pyright: ignore
+
+        # Set defaults for required fields
+        metadata["title"] = metadata.get("title", absolute_path.stem)
+        metadata["type"] = metadata.get("type", "note")
+        tags = parse_tags(metadata.get("tags", []))  # pyright: ignore
         if tags:
             metadata["tags"] = tags
+
         # frontmatter
         entity_frontmatter = EntityFrontmatter(
-            metadata=post.metadata,
+            metadata=metadata,
         )
-        entity_content = parse(post.content)
+        entity_content = parse(content_without_frontmatter)
         return EntityMarkdown(
             frontmatter=entity_frontmatter,
-            content=post.content,
+            content=content_without_frontmatter,
             observations=entity_content.observations,
             relations=entity_content.relations,
             created=datetime.fromtimestamp(file_stats.st_ctime),

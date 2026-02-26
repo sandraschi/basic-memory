@@ -262,7 +262,7 @@ async def _process_vault_import(
             # Check if file already exists
             if skip_existing:
                 try:
-                    existing = await search_notes.fn(
+                    existing = await (search_notes.fn if hasattr(search_notes, "fn") else search_notes)(
                         query=dest_path,
                         search_type="permalink",
                         project=project
@@ -293,7 +293,7 @@ async def _process_vault_import(
 
             full_content = body + import_metadata
 
-            result = await write_note.fn(
+            result = await (write_note.fn if hasattr(write_note, "fn") else write_note)(
                 title=title,
                 content=full_content,
                 folder=dest_path,

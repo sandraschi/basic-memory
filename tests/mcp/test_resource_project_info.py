@@ -97,7 +97,7 @@ async def test_project_info_tool():
         "basic_memory.mcp.resources.project_info.call_get", return_value=mock_response
     ) as mock_call_get:
         # Call the function
-        result = await project_info.fn()
+        result = await (project_info.fn if hasattr(project_info, "fn") else project_info)()
 
         # Verify that call_get was called with the correct URL
         mock_call_get.assert_called_once()
@@ -138,7 +138,7 @@ async def test_project_info_error_handling():
     ):
         # Verify that the exception propagates
         with pytest.raises(Exception) as excinfo:
-            await project_info.fn()
+            await (project_info.fn if hasattr(project_info, "fn") else project_info)()
 
         # Verify error message
         assert "Test error" in str(excinfo.value)

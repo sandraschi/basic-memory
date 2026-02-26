@@ -270,7 +270,7 @@ async def _process_canvas_node(
         content = "\n".join(lines[1:]) if len(lines) > 1 else ""
 
         # Create the note
-        result = await write_note.fn(
+        result = await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title=title,
             content=content,
             folder=destination_folder,
@@ -288,7 +288,7 @@ async def _process_canvas_node(
 
         # Check if file exists
         try:
-            existing = await search_notes.fn(
+            existing = await (search_notes.fn if hasattr(search_notes, "fn") else search_notes)(
                 query=file_path,
                 search_type="permalink",
                 project=project
@@ -299,7 +299,7 @@ async def _process_canvas_node(
                 return file_path
             elif create_missing_files:
                 # Create a placeholder note
-                result = await write_note.fn(
+                result = await (write_note.fn if hasattr(write_note, "fn") else write_note)(
                     title=f"Referenced: {Path(file_path).stem}",
                     content=f"This note was referenced in a canvas but the original file was not found.\n\nOriginal path: {file_path}",
                     folder=destination_folder,
@@ -319,7 +319,7 @@ async def _process_canvas_node(
         # URL or external link
         url = node.get("url")
         if url:
-            result = await write_note.fn(
+            result = await (write_note.fn if hasattr(write_note, "fn") else write_note)(
                 title=f"Link: {url[:50]}...",
                 content=f"External link referenced in canvas.\n\nURL: {url}",
                 folder=destination_folder,
@@ -332,7 +332,7 @@ async def _process_canvas_node(
     elif node_type == "group":
         # Group node - could create a folder or category note
         label = node.get("label", f"Group {node_id}")
-        result = await write_note.fn(
+        result = await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title=f"Group: {label}",
             content=f"Canvas group node: {label}\n\nThis represents a grouped collection of items from the imported canvas.",
             folder=destination_folder,
@@ -365,7 +365,7 @@ async def _process_canvas_edge(
 
     # For now, we'll create a simple note that documents the relationship
     # In the future, this could be enhanced to use actual relation entities
-    relation_note = await write_note.fn(
+    relation_note = await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title=f"Canvas Relation: {Path(from_entity).name} → {Path(to_entity).name}",
         content=f"""Canvas relationship imported from Obsidian canvas.
 

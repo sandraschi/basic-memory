@@ -12,14 +12,14 @@ from basic_memory.mcp.tools.read_note import read_note
 async def test_move_note_success(app, client):
     """Test successfully moving a note to a new location."""
     # Create initial note
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Test Note",
         folder="source",
         content="# Test Note\nOriginal content here.",
     )
 
     # Move note
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="source/test-note",
         destination_path="target/MovedNote.md",
     )
@@ -29,13 +29,13 @@ async def test_move_note_success(app, client):
 
     # Verify original location no longer exists
     try:
-        await read_note.fn("source/test-note")
+        await (read_note.fn if hasattr(read_note, "fn") else read_note)("source/test-note")
         assert False, "Original note should not exist after move"
     except Exception:
         pass  # Expected - note should not exist at original location
 
     # Verify note exists at new location with same content
-    content = await read_note.fn("target/moved-note")
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)("target/moved-note")
     assert "# Test Note" in content
     assert "Original content here" in content
     assert "permalink: target/moved-note" in content
@@ -45,14 +45,14 @@ async def test_move_note_success(app, client):
 async def test_move_note_with_folder_creation(client):
     """Test moving note creates necessary folders."""
     # Create initial note
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Deep Note",
         folder="",
         content="# Deep Note\nContent in root folder.",
     )
 
     # Move to deeply nested path
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="deep-note",
         destination_path="deeply/nested/folder/DeepNote.md",
     )
@@ -61,7 +61,7 @@ async def test_move_note_with_folder_creation(client):
     assert "✅ Note moved successfully" in result
 
     # Verify note exists at new location
-    content = await read_note.fn("deeply/nested/folder/deep-note")
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)("deeply/nested/folder/deep-note")
     assert "# Deep Note" in content
     assert "Content in root folder" in content
 
@@ -70,7 +70,7 @@ async def test_move_note_with_folder_creation(client):
 async def test_move_note_with_observations_and_relations(app, client):
     """Test moving note preserves observations and relations."""
     # Create note with complex semantic content
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Complex Entity",
         folder="source",
         content="""# Complex Entity
@@ -88,7 +88,7 @@ Some additional content.
     )
 
     # Move note
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="source/complex-entity",
         destination_path="target/MovedComplex.md",
     )
@@ -97,7 +97,7 @@ Some additional content.
     assert "✅ Note moved successfully" in result
 
     # Verify moved note preserves all content
-    content = await read_note.fn("target/moved-complex")
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)("target/moved-complex")
     assert "Important observation #tag1" in content
     assert "Key feature #feature" in content
     assert "[[SomeOtherEntity]]" in content
@@ -109,14 +109,14 @@ Some additional content.
 async def test_move_note_by_title(client):
     """Test moving note using title as identifier."""
     # Create note with unique title
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="UniqueTestTitle",
         folder="source",
         content="# UniqueTestTitle\nTest content.",
     )
 
     # Move using title as identifier
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="UniqueTestTitle",
         destination_path="target/MovedByTitle.md",
     )
@@ -125,7 +125,7 @@ async def test_move_note_by_title(client):
     assert "✅ Note moved successfully" in result
 
     # Verify note exists at new location
-    content = await read_note.fn("target/moved-by-title")
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)("target/moved-by-title")
     assert "# UniqueTestTitle" in content
     assert "Test content" in content
 
@@ -134,14 +134,14 @@ async def test_move_note_by_title(client):
 async def test_move_note_by_file_path(client):
     """Test moving note using file path as identifier."""
     # Create initial note
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="PathTest",
         folder="source",
         content="# PathTest\nContent for path test.",
     )
 
     # Move using file path as identifier
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="source/PathTest.md",
         destination_path="target/MovedByPath.md",
     )
@@ -150,7 +150,7 @@ async def test_move_note_by_file_path(client):
     assert "✅ Note moved successfully" in result
 
     # Verify note exists at new location
-    content = await read_note.fn("target/moved-by-path")
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)("target/moved-by-path")
     assert "# PathTest" in content
     assert "Content for path test" in content
 
@@ -158,7 +158,7 @@ async def test_move_note_by_file_path(client):
 @pytest.mark.asyncio
 async def test_move_note_nonexistent_note(client):
     """Test moving a note that doesn't exist."""
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="nonexistent/note",
         destination_path="target/SomeFile.md",
     )
@@ -174,14 +174,14 @@ async def test_move_note_nonexistent_note(client):
 async def test_move_note_invalid_destination_path(client):
     """Test moving note with invalid destination path."""
     # Create initial note
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="TestNote",
         folder="source",
         content="# TestNote\nTest content.",
     )
 
     # Test absolute path (should be rejected by validation)
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="source/test-note",
         destination_path="/absolute/path.md",
     )
@@ -196,21 +196,21 @@ async def test_move_note_invalid_destination_path(client):
 async def test_move_note_destination_exists(client):
     """Test moving note to existing destination."""
     # Create source note
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="SourceNote",
         folder="source",
         content="# SourceNote\nSource content.",
     )
 
     # Create destination note
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="DestinationNote",
         folder="target",
         content="# DestinationNote\nDestination content.",
     )
 
     # Try to move source to existing destination
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="source/source-note",
         destination_path="target/DestinationNote.md",
     )
@@ -225,14 +225,14 @@ async def test_move_note_destination_exists(client):
 async def test_move_note_same_location(client):
     """Test moving note to the same location."""
     # Create initial note
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="SameLocationTest",
         folder="test",
         content="# SameLocationTest\nContent here.",
     )
 
     # Try to move to same location
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="test/same-location-test",
         destination_path="test/SameLocationTest.md",
     )
@@ -247,27 +247,27 @@ async def test_move_note_same_location(client):
 async def test_move_note_rename_only(client):
     """Test moving note within same folder (rename operation)."""
     # Create initial note
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="OriginalName",
         folder="test",
         content="# OriginalName\nContent to rename.",
     )
 
     # Rename within same folder
-    await move_note.fn(
+    await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="test/original-name",
         destination_path="test/NewName.md",
     )
 
     # Verify original is gone
     try:
-        await read_note.fn("test/original-name")
+        await (read_note.fn if hasattr(read_note, "fn") else read_note)("test/original-name")
         assert False, "Original note should not exist after rename"
     except Exception:
         pass  # Expected
 
     # Verify new name exists with same content
-    content = await read_note.fn("test/new-name")
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)("test/new-name")
     assert "# OriginalName" in content  # Title in content remains same
     assert "Content to rename" in content
     assert "permalink: test/new-name" in content
@@ -277,14 +277,14 @@ async def test_move_note_rename_only(client):
 async def test_move_note_complex_filename(client):
     """Test moving note with spaces in filename."""
     # Create note with spaces in name
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Meeting Notes 2025",
         folder="meetings",
         content="# Meeting Notes 2025\nMeeting content with dates.",
     )
 
     # Move to new location
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="meetings/meeting-notes-2025",
         destination_path="archive/2025/meetings/Meeting Notes 2025.md",
     )
@@ -293,7 +293,7 @@ async def test_move_note_complex_filename(client):
     assert "✅ Note moved successfully" in result
 
     # Verify note exists at new location with correct content
-    content = await read_note.fn("archive/2025/meetings/meeting-notes-2025")
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)("archive/2025/meetings/meeting-notes-2025")
     assert "# Meeting Notes 2025" in content
     assert "Meeting content with dates" in content
 
@@ -302,7 +302,7 @@ async def test_move_note_complex_filename(client):
 async def test_move_note_with_tags(app, client):
     """Test moving note with tags preserves tags."""
     # Create note with tags
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Tagged Note",
         folder="source",
         content="# Tagged Note\nContent with tags.",
@@ -310,7 +310,7 @@ async def test_move_note_with_tags(app, client):
     )
 
     # Move note
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="source/tagged-note",
         destination_path="target/MovedTaggedNote.md",
     )
@@ -319,7 +319,7 @@ async def test_move_note_with_tags(app, client):
     assert "✅ Note moved successfully" in result
 
     # Verify tags are preserved in correct YAML format
-    content = await read_note.fn("target/moved-tagged-note")
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)("target/moved-tagged-note")
     assert "- important" in content
     assert "- work" in content
     assert "- project" in content
@@ -329,14 +329,14 @@ async def test_move_note_with_tags(app, client):
 async def test_move_note_empty_string_destination(client):
     """Test moving note with empty destination path."""
     # Create initial note
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="TestNote",
         folder="source",
         content="# TestNote\nTest content.",
     )
 
     # Test empty destination path
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="source/test-note",
         destination_path="",
     )
@@ -351,14 +351,14 @@ async def test_move_note_empty_string_destination(client):
 async def test_move_note_parent_directory_path(client):
     """Test moving note with parent directory in destination path."""
     # Create initial note
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="TestNote",
         folder="source",
         content="# TestNote\nTest content.",
     )
 
     # Test parent directory path
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="source/test-note",
         destination_path="../parent/file.md",
     )
@@ -373,14 +373,14 @@ async def test_move_note_parent_directory_path(client):
 async def test_move_note_identifier_variations(client):
     """Test that various identifier formats work for moving."""
     # Create a note to test different identifier formats
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Test Document",
         folder="docs",
         content="# Test Document\nContent for testing identifiers.",
     )
 
     # Test with permalink identifier
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="docs/test-document",
         destination_path="moved/TestDocument.md",
     )
@@ -389,7 +389,7 @@ async def test_move_note_identifier_variations(client):
     assert "✅ Note moved successfully" in result
 
     # Verify it moved correctly
-    content = await read_note.fn("moved/test-document")
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)("moved/test-document")
     assert "# Test Document" in content
     assert "Content for testing identifiers" in content
 
@@ -398,14 +398,14 @@ async def test_move_note_identifier_variations(client):
 async def test_move_note_preserves_frontmatter(app, client):
     """Test that moving preserves custom frontmatter."""
     # Create note with custom frontmatter by first creating it normally
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Custom Frontmatter Note",
         folder="source",
         content="# Custom Frontmatter Note\nContent with custom metadata.",
     )
 
     # Move the note
-    result = await move_note.fn(
+    result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
         identifier="source/custom-frontmatter-note",
         destination_path="target/MovedCustomNote.md",
     )
@@ -414,7 +414,7 @@ async def test_move_note_preserves_frontmatter(app, client):
     assert "✅ Note moved successfully" in result
 
     # Verify the moved note has proper frontmatter structure
-    content = await read_note.fn("target/moved-custom-note")
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)("target/moved-custom-note")
     assert "title: Custom Frontmatter Note" in content
     assert "type: note" in content
     assert "permalink: target/moved-custom-note" in content
@@ -468,7 +468,7 @@ class TestMoveNoteSecurityValidation:
     async def test_move_note_blocks_path_traversal_unix(self, client):
         """Test that Unix-style path traversal attacks are blocked."""
         # Create initial note
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Test Note",
             folder="source",
             content="# Test Note\nTest content for security testing.",
@@ -485,7 +485,7 @@ class TestMoveNoteSecurityValidation:
         ]
 
         for attack_path in attack_paths:
-            result = await move_note.fn(
+            result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
                 identifier="source/test-note",
                 destination_path=attack_path,
             )
@@ -500,7 +500,7 @@ class TestMoveNoteSecurityValidation:
     async def test_move_note_blocks_path_traversal_windows(self, client):
         """Test that Windows-style path traversal attacks are blocked."""
         # Create initial note
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Test Note",
             folder="source",
             content="# Test Note\nTest content for security testing.",
@@ -517,7 +517,7 @@ class TestMoveNoteSecurityValidation:
         ]
 
         for attack_path in attack_paths:
-            result = await move_note.fn(
+            result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
                 identifier="source/test-note",
                 destination_path=attack_path,
             )
@@ -531,7 +531,7 @@ class TestMoveNoteSecurityValidation:
     async def test_move_note_blocks_absolute_paths(self, client):
         """Test that absolute paths are blocked."""
         # Create initial note
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Test Note",
             folder="source",
             content="# Test Note\nTest content for security testing.",
@@ -550,7 +550,7 @@ class TestMoveNoteSecurityValidation:
         ]
 
         for attack_path in attack_paths:
-            result = await move_note.fn(
+            result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
                 identifier="source/test-note",
                 destination_path=attack_path,
             )
@@ -564,7 +564,7 @@ class TestMoveNoteSecurityValidation:
     async def test_move_note_blocks_home_directory_access(self, client):
         """Test that home directory access patterns are blocked."""
         # Create initial note
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Test Note",
             folder="source",
             content="# Test Note\nTest content for security testing.",
@@ -581,7 +581,7 @@ class TestMoveNoteSecurityValidation:
         ]
 
         for attack_path in attack_paths:
-            result = await move_note.fn(
+            result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
                 identifier="source/test-note",
                 destination_path=attack_path,
             )
@@ -595,7 +595,7 @@ class TestMoveNoteSecurityValidation:
     async def test_move_note_blocks_mixed_attack_patterns(self, client):
         """Test that mixed legitimate/attack patterns are blocked."""
         # Create initial note
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Test Note",
             folder="source",
             content="# Test Note\nTest content for security testing.",
@@ -611,7 +611,7 @@ class TestMoveNoteSecurityValidation:
         ]
 
         for attack_path in attack_paths:
-            result = await move_note.fn(
+            result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
                 identifier="source/test-note",
                 destination_path=attack_path,
             )
@@ -624,7 +624,7 @@ class TestMoveNoteSecurityValidation:
     async def test_move_note_allows_safe_paths(self, client):
         """Test that legitimate paths are still allowed."""
         # Create initial note
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Test Note",
             folder="source",
             content="# Test Note\nTest content for security testing.",
@@ -641,7 +641,7 @@ class TestMoveNoteSecurityValidation:
         ]
 
         for safe_path in safe_paths:
-            result = await move_note.fn(
+            result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
                 identifier="source/test-note",
                 destination_path=safe_path,
             )
@@ -659,14 +659,14 @@ class TestMoveNoteSecurityValidation:
     async def test_move_note_security_logging(self, client, caplog):
         """Test that security violations are properly logged."""
         # Create initial note
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Test Note",
             folder="source",
             content="# Test Note\nTest content for security testing.",
         )
 
         # Attempt path traversal attack
-        result = await move_note.fn(
+        result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
             identifier="source/test-note",
             destination_path="../../../etc/passwd",
         )
@@ -681,14 +681,14 @@ class TestMoveNoteSecurityValidation:
     async def test_move_note_empty_path_security(self, client):
         """Test that empty destination path is handled securely."""
         # Create initial note
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Test Note",
             folder="source",
             content="# Test Note\nTest content for security testing.",
         )
 
         # Test empty destination path (should be allowed as it resolves to project root)
-        result = await move_note.fn(
+        result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
             identifier="source/test-note",
             destination_path="",
         )
@@ -701,7 +701,7 @@ class TestMoveNoteSecurityValidation:
     async def test_move_note_current_directory_references_security(self, client):
         """Test that current directory references are handled securely."""
         # Create initial note
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Test Note",
             folder="source",
             content="# Test Note\nTest content for security testing.",
@@ -715,7 +715,7 @@ class TestMoveNoteSecurityValidation:
         ]
 
         for safe_path in safe_paths:
-            result = await move_note.fn(
+            result = await (move_note.fn if hasattr(move_note, "fn") else move_note)(
                 identifier="source/test-note",
                 destination_path=safe_path,
             )
@@ -739,7 +739,7 @@ class TestMoveNoteErrorHandling:
                 "basic_memory.mcp.tools.move_note.call_post",
                 side_effect=Exception("entity not found"),
             ):
-                result = await move_note.fn("test-note", "target/file.md")
+                result = await (move_note.fn if hasattr(move_note, "fn") else move_note)("test-note", "target/file.md")
 
                 assert isinstance(result, str)
                 assert "# Move Failed - Note Not Found" in result
@@ -755,7 +755,7 @@ class TestMoveNoteErrorHandling:
                 "basic_memory.mcp.tools.move_note.call_post",
                 side_effect=Exception("permission denied"),
             ):
-                result = await move_note.fn("test-note", "target/file.md")
+                result = await (move_note.fn if hasattr(move_note, "fn") else move_note)("test-note", "target/file.md")
 
                 assert isinstance(result, str)
                 assert "# Move Failed - Permission Error" in result

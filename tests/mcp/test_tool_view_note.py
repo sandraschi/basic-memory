@@ -34,14 +34,14 @@ async def mock_search():
 async def test_view_note_basic_functionality(app):
     """Test viewing a note creates an artifact."""
     # First create a note
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Test View Note",
         folder="test",
         content="# Test View Note\n\nThis is test content for viewing.",
     )
 
     # View the note
-    result = await view_note.fn("Test View Note")
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("Test View Note")
 
     # Should contain artifact XML
     assert '<artifact identifier="note-' in result
@@ -72,10 +72,10 @@ async def test_view_note_with_frontmatter_title(app):
         Content with frontmatter title.
     """).strip()
 
-    await write_note.fn(title="Frontmatter Title", folder="test", content=content)
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(title="Frontmatter Title", folder="test", content=content)
 
     # View the note
-    result = await view_note.fn("Frontmatter Title")
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("Frontmatter Title")
 
     # Should extract title from frontmatter
     assert 'title="Frontmatter Title"' in result
@@ -88,10 +88,10 @@ async def test_view_note_with_heading_title(app):
     # Create note with heading but no frontmatter title
     content = "# Heading Title\n\nContent with heading title."
 
-    await write_note.fn(title="Heading Title", folder="test", content=content)
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(title="Heading Title", folder="test", content=content)
 
     # View the note
-    result = await view_note.fn("Heading Title")
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("Heading Title")
 
     # Should extract title from heading
     assert 'title="Heading Title"' in result
@@ -103,10 +103,10 @@ async def test_view_note_unicode_content(app):
     """Test viewing a note with Unicode content."""
     content = "# Unicode Test 🚀\n\nThis note has emoji 🎉 and unicode ♠♣♥♦"
 
-    await write_note.fn(title="Unicode Test 🚀", folder="test", content=content)
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(title="Unicode Test 🚀", folder="test", content=content)
 
     # View the note
-    result = await view_note.fn("Unicode Test 🚀")
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("Unicode Test 🚀")
 
     # Should handle Unicode properly
     assert "🚀" in result
@@ -118,12 +118,12 @@ async def test_view_note_unicode_content(app):
 @pytest.mark.asyncio
 async def test_view_note_by_permalink(app):
     """Test viewing a note by its permalink."""
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Permalink Test", folder="test", content="Content for permalink test."
     )
 
     # View by permalink
-    result = await view_note.fn("test/permalink-test")
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("test/permalink-test")
 
     # Should work with permalink
     assert '<artifact identifier="note-' in result
@@ -134,14 +134,14 @@ async def test_view_note_by_permalink(app):
 @pytest.mark.asyncio
 async def test_view_note_with_memory_url(app):
     """Test viewing a note using a memory:// URL."""
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Memory URL Test",
         folder="test",
         content="Testing memory:// URL handling in view_note",
     )
 
     # View with memory:// URL
-    result = await view_note.fn("memory://test/memory-url-test")
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("memory://test/memory-url-test")
 
     # Should work with memory:// URL
     assert '<artifact identifier="note-' in result
@@ -153,7 +153,7 @@ async def test_view_note_with_memory_url(app):
 async def test_view_note_not_found(app):
     """Test viewing a non-existent note returns error without artifact."""
     # Try to view non-existent note
-    result = await view_note.fn("NonExistent Note")
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("NonExistent Note")
 
     # Should return error message without artifact
     assert "# Note Not Found:" in result
@@ -166,12 +166,12 @@ async def test_view_note_not_found(app):
 @pytest.mark.asyncio
 async def test_view_note_pagination(app):
     """Test viewing a note with pagination parameters."""
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Pagination Test", folder="test", content="Content for pagination test."
     )
 
     # View with pagination
-    result = await view_note.fn("Pagination Test", page=1, page_size=5)
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("Pagination Test", page=1, page_size=5)
 
     # Should work with pagination
     assert '<artifact identifier="note-' in result
@@ -182,10 +182,10 @@ async def test_view_note_pagination(app):
 @pytest.mark.asyncio
 async def test_view_note_project_parameter(app):
     """Test viewing a note with project parameter."""
-    await write_note.fn(title="Project Test", folder="test", content="Content for project test.")
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(title="Project Test", folder="test", content="Content for project test.")
 
     # View with explicit project (None uses current)
-    result = await view_note.fn("Project Test", project=None)
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("Project Test", project=None)
 
     # Should work with project parameter
     assert '<artifact identifier="note-' in result
@@ -197,12 +197,12 @@ async def test_view_note_project_parameter(app):
 async def test_view_note_artifact_identifier_unique(app):
     """Test that different notes get different artifact identifiers."""
     # Create two notes
-    await write_note.fn(title="Note One", folder="test", content="Content one")
-    await write_note.fn(title="Note Two", folder="test", content="Content two")
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(title="Note One", folder="test", content="Content one")
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(title="Note Two", folder="test", content="Content two")
 
     # View both notes
-    result1 = await view_note.fn("Note One")
-    result2 = await view_note.fn("Note Two")
+    result1 = await (view_note.fn if hasattr(view_note, "fn") else view_note)("Note One")
+    result2 = await (view_note.fn if hasattr(view_note, "fn") else view_note)("Note Two")
 
     # Should have different artifact identifiers
     import re
@@ -219,14 +219,14 @@ async def test_view_note_artifact_identifier_unique(app):
 async def test_view_note_fallback_identifier_as_title(app):
     """Test that view_note uses identifier as title when no title is extractable."""
     # Create a note with no clear title structure
-    await write_note.fn(
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Simple Note",
         folder="test",
         content="Just plain content with no headings or frontmatter title",
     )
 
     # View the note
-    result = await view_note.fn("Simple Note")
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("Simple Note")
 
     # Should use identifier as fallback title
     assert 'title="Simple Note"' in result
@@ -252,7 +252,7 @@ async def test_view_note_direct_success(mock_call_get):
     mock_call_get.return_value = mock_response
 
     # Call the function
-    result = await view_note.fn("test/test-note")
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("test/test-note")
 
     # Verify direct lookup was used
     mock_call_get.assert_called_once()
@@ -294,7 +294,7 @@ async def test_view_note_title_search_fallback(mock_call_get, mock_search):
     )
 
     # Call the function
-    result = await view_note.fn("Test Note")
+    result = await (view_note.fn if hasattr(view_note, "fn") else view_note)("Test Note")
 
     # Verify title search was used
     mock_search.assert_called_once()

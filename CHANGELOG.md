@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.14.4 (2025-01-29)
+## v0.14.4 (2025-09-30)
 
 ### Features & Improvements
 

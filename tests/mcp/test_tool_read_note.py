@@ -36,10 +36,10 @@ async def mock_search():
 async def test_read_note_by_title(app):
     """Test reading a note by its title."""
     # First create a note
-    await write_note.fn(title="Special Note", folder="test", content="Note content here")
+    await (write_note.fn if hasattr(write_note, "fn") else write_note)(title="Special Note", folder="test", content="Note content here")
 
     # Should be able to read it by title
-    content = await read_note.fn("Special Note")
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)("Special Note")
     assert "Note content here" in content
 
 
@@ -47,7 +47,7 @@ async def test_read_note_by_title(app):
 async def test_note_unicode_content(app):
     """Test handling of unicode content in"""
     content = "# Test 🚀\nThis note has emoji 🎉 and unicode ♠♣♥♦"
-    result = await write_note.fn(title="Unicode Test", folder="test", content=content)
+    result = await (write_note.fn if hasattr(write_note, "fn") else write_note)(title="Unicode Test", folder="test", content=content)
 
     assert (
         dedent("""
@@ -60,7 +60,7 @@ async def test_note_unicode_content(app):
     )
 
     # Read back should preserve unicode
-    result = await read_note.fn("test/unicode-test")
+    result = await (read_note.fn if hasattr(read_note, "fn") else read_note)("test/unicode-test")
     assert content in result
 
 
@@ -75,16 +75,16 @@ async def test_multiple_notes(app):
     ]
 
     for _, title, folder, content, tags in notes_data:
-        await write_note.fn(title=title, folder=folder, content=content, tags=tags)
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(title=title, folder=folder, content=content, tags=tags)
 
     # Should be able to read each one
     for permalink, title, folder, content, _ in notes_data:
-        note = await read_note.fn(permalink)
+        note = await (read_note.fn if hasattr(read_note, "fn") else read_note)(permalink)
         assert content in note
 
     # read multiple notes at once
 
-    result = await read_note.fn("test/*")
+    result = await (read_note.fn if hasattr(read_note, "fn") else read_note)("test/*")
 
     # note we can't compare times
     assert "--- memory://test/note-1" in result
@@ -108,15 +108,15 @@ async def test_multiple_notes_pagination(app):
     ]
 
     for _, title, folder, content, tags in notes_data:
-        await write_note.fn(title=title, folder=folder, content=content, tags=tags)
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(title=title, folder=folder, content=content, tags=tags)
 
     # Should be able to read each one
     for permalink, title, folder, content, _ in notes_data:
-        note = await read_note.fn(permalink)
+        note = await (read_note.fn if hasattr(read_note, "fn") else read_note)(permalink)
         assert content in note
 
     # read multiple notes at once with pagination
-    result = await read_note.fn("test/*", page=1, page_size=2)
+    result = await (read_note.fn if hasattr(read_note, "fn") else read_note)("test/*", page=1, page_size=2)
 
     # note we can't compare times
     assert "--- memory://test/note-1" in result
@@ -136,7 +136,7 @@ async def test_read_note_memory_url(app):
     - Return the note content
     """
     # First create a note
-    result = await write_note.fn(
+    result = await (write_note.fn if hasattr(write_note, "fn") else write_note)(
         title="Memory URL Test",
         folder="test",
         content="Testing memory:// URL handling",
@@ -145,7 +145,7 @@ async def test_read_note_memory_url(app):
 
     # Should be able to read it with a memory:// URL
     memory_url = "memory://test/memory-url-test"
-    content = await read_note.fn(memory_url)
+    content = await (read_note.fn if hasattr(read_note, "fn") else read_note)(memory_url)
     assert "Testing memory:// URL handling" in content
 
 
@@ -159,7 +159,7 @@ async def test_read_note_direct_success(mock_call_get):
     mock_call_get.return_value = mock_response
 
     # Call the function
-    result = await read_note.fn("test/test-note")
+    result = await (read_note.fn if hasattr(read_note, "fn") else read_note)("test/test-note")
 
     # Verify direct lookup was used
     mock_call_get.assert_called_once()
@@ -199,7 +199,7 @@ async def test_read_note_title_search_fallback(mock_call_get, mock_search):
     )
 
     # Call the function
-    result = await read_note.fn("Test Note")
+    result = await (read_note.fn if hasattr(read_note, "fn") else read_note)("Test Note")
 
     # Verify title search was used
     mock_search.assert_called_once()
@@ -253,7 +253,7 @@ async def test_read_note_text_search_fallback(mock_call_get, mock_search):
     ]
 
     # Call the function
-    result = await read_note.fn("some query")
+    result = await (read_note.fn if hasattr(read_note, "fn") else read_note)("some query")
 
     # Verify both search types were used
     assert mock_search.call_count == 2
@@ -281,7 +281,7 @@ async def test_read_note_complete_fallback(mock_call_get, mock_search):
     mock_search.return_value = SearchResponse(results=[], current_page=1, page_size=1)
 
     # Call the function
-    result = await read_note.fn("nonexistent")
+    result = await (read_note.fn if hasattr(read_note, "fn") else read_note)("nonexistent")
 
     # Verify search was used
     assert mock_search.call_count == 2
@@ -314,7 +314,7 @@ class TestReadNoteSecurityValidation:
         ]
 
         for attack_identifier in attack_identifiers:
-            result = await read_note.fn(identifier=attack_identifier)
+            result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier=attack_identifier)
 
             assert isinstance(result, str)
             assert "# Error" in result
@@ -336,7 +336,7 @@ class TestReadNoteSecurityValidation:
         ]
 
         for attack_identifier in attack_identifiers:
-            result = await read_note.fn(identifier=attack_identifier)
+            result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier=attack_identifier)
 
             assert isinstance(result, str)
             assert "# Error" in result
@@ -360,7 +360,7 @@ class TestReadNoteSecurityValidation:
         ]
 
         for attack_identifier in attack_identifiers:
-            result = await read_note.fn(identifier=attack_identifier)
+            result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier=attack_identifier)
 
             assert isinstance(result, str)
             assert "# Error" in result
@@ -383,7 +383,7 @@ class TestReadNoteSecurityValidation:
         ]
 
         for attack_identifier in attack_identifiers:
-            result = await read_note.fn(identifier=attack_identifier)
+            result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier=attack_identifier)
 
             assert isinstance(result, str)
             assert "# Error" in result
@@ -404,7 +404,7 @@ class TestReadNoteSecurityValidation:
         ]
 
         for attack_identifier in attack_identifiers:
-            result = await read_note.fn(identifier=attack_identifier)
+            result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier=attack_identifier)
 
             assert isinstance(result, str)
             assert "# Error" in result
@@ -424,7 +424,7 @@ class TestReadNoteSecurityValidation:
         ]
 
         for attack_identifier in attack_identifiers:
-            result = await read_note.fn(identifier=attack_identifier)
+            result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier=attack_identifier)
 
             assert isinstance(result, str)
             assert "# Error" in result
@@ -446,7 +446,7 @@ class TestReadNoteSecurityValidation:
         ]
 
         for safe_identifier in safe_identifiers:
-            result = await read_note.fn(identifier=safe_identifier)
+            result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier=safe_identifier)
 
             assert isinstance(result, str)
             # Should not contain security error message
@@ -458,14 +458,14 @@ class TestReadNoteSecurityValidation:
     async def test_read_note_allows_legitimate_titles(self, app):
         """Test that legitimate note titles work normally."""
         # Create a test note first
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Security Test Note",
             folder="security-tests",
             content="# Security Test Note\nThis is a legitimate note for security testing.",
         )
 
         # Test reading by title (should work)
-        result = await read_note.fn("Security Test Note")
+        result = await (read_note.fn if hasattr(read_note, "fn") else read_note)("Security Test Note")
         
         assert isinstance(result, str)
         # Should not be a security error
@@ -476,7 +476,7 @@ class TestReadNoteSecurityValidation:
     async def test_read_note_empty_identifier_security(self, app):
         """Test that empty identifier is handled securely."""
         # Empty identifier should be allowed (may return search results or error, but not security error)
-        result = await read_note.fn(identifier="")
+        result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier="")
 
         assert isinstance(result, str)
         # Empty identifier should not trigger security error
@@ -486,7 +486,7 @@ class TestReadNoteSecurityValidation:
     async def test_read_note_security_with_all_parameters(self, app):
         """Test security validation works with all read_note parameters."""
         # Test that security validation is applied even when all other parameters are provided
-        result = await read_note.fn(
+        result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(
             identifier="../../../etc/malicious",
             page=1,
             page_size=5,
@@ -502,7 +502,7 @@ class TestReadNoteSecurityValidation:
     async def test_read_note_security_logging(self, app, caplog):
         """Test that security violations are properly logged."""
         # Attempt path traversal attack
-        result = await read_note.fn(identifier="../../../etc/passwd")
+        result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier="../../../etc/passwd")
 
         assert "# Error" in result
         assert "paths must stay within project boundaries" in result
@@ -515,7 +515,7 @@ class TestReadNoteSecurityValidation:
     async def test_read_note_preserves_functionality_with_security(self, app):
         """Test that security validation doesn't break normal note reading functionality."""
         # Create a note with complex content to ensure security validation doesn't interfere
-        await write_note.fn(
+        await (write_note.fn if hasattr(write_note, "fn") else write_note)(
             title="Full Feature Security Test Note",
             folder="security-tests",
             content=dedent("""
@@ -538,7 +538,7 @@ class TestReadNoteSecurityValidation:
         )
 
         # Test reading by permalink
-        result = await read_note.fn("security-tests/full-feature-security-test-note")
+        result = await (read_note.fn if hasattr(read_note, "fn") else read_note)("security-tests/full-feature-security-test-note")
         
         # Should succeed normally (not a security error)
         assert isinstance(result, str)
@@ -560,7 +560,7 @@ class TestReadNoteSecurityEdgeCases:
         ]
 
         for attack_identifier in unicode_attack_identifiers:
-            result = await read_note.fn(identifier=attack_identifier)
+            result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier=attack_identifier)
 
             assert isinstance(result, str)
             assert "# Error" in result
@@ -572,7 +572,7 @@ class TestReadNoteSecurityEdgeCases:
         # Create a very long path traversal attack
         long_attack_identifier = "../" * 1000 + "etc/malicious"
         
-        result = await read_note.fn(identifier=long_attack_identifier)
+        result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier=long_attack_identifier)
 
         assert isinstance(result, str)
         assert "# Error" in result
@@ -590,7 +590,7 @@ class TestReadNoteSecurityEdgeCases:
         ]
 
         for attack_identifier in case_attack_identifiers:
-            result = await read_note.fn(identifier=attack_identifier)
+            result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier=attack_identifier)
 
             assert isinstance(result, str)
             assert "# Error" in result
@@ -608,7 +608,7 @@ class TestReadNoteSecurityEdgeCases:
         ]
 
         for attack_identifier in whitespace_attack_identifiers:
-            result = await read_note.fn(identifier=attack_identifier)
+            result = await (read_note.fn if hasattr(read_note, "fn") else read_note)(identifier=attack_identifier)
 
             assert isinstance(result, str)
             # The attack should still be blocked even with whitespace

@@ -1,4 +1,4 @@
-﻿"""Read note tool for Basic Memory MCP server."""
+"""Read note tool for Basic Memory MCP server."""
 
 from textwrap import dedent
 from typing import Optional
@@ -159,7 +159,7 @@ async def read_note(
 
     # Fallback 1: Try title search via API
     logger.info(f"Search title for: {identifier}")
-    title_results = await search_notes.fn(query=identifier, search_type="title", project=project)
+    title_results = await (search_notes.fn if hasattr(search_notes, "fn") else search_notes)(query=identifier, search_type="title", project=project)
 
     if title_results and title_results.results:
         result = title_results.results[0]  # Get the first/best match
@@ -183,7 +183,7 @@ async def read_note(
 
     # Fallback 2: Text search as a last resort
     logger.info(f"Title search failed, trying text search for: {identifier}")
-    text_results = await search_notes.fn(query=identifier, search_type="text", project=project)
+    text_results = await (search_notes.fn if hasattr(search_notes, "fn") else search_notes)(query=identifier, search_type="text", project=project)
 
     # We didn't find a direct match, construct a helpful error message
     if not text_results or not text_results.results:

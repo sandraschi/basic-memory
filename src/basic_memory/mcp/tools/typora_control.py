@@ -13,8 +13,8 @@ import json
 import websockets
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Union
-from basic_memory.mcp import mcp
-from basic_memory.utils import logger
+from basic_memory.mcp.server import mcp
+from basic_memory.config import logger
 
 
 class TyporaRPCClient:
